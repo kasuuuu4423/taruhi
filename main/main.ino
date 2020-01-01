@@ -1,8 +1,12 @@
 #include <ArduinoJson.h>
 #include <FastLED.h>
+
+///////////Configurable Value///////////
   #define NUM_LED 600
   #define BRIGHTNESS 64
   #define PIN 0
+///////////Configurable Value///////////
+
 #include <HTTPClient.h>
 #include <HTTP_Method.h>
 #include <time.h>
@@ -10,25 +14,29 @@
 #include <WebServer.h>
 #include <WiFi.h>
 
+///////////Configurable Value///////////
+const char* ssid = "aterm-358916-g";
+const char* pass = "simizu7856";
+int dulationMin = 60;
+int oclock = 17;
+///////////Configurable Value///////////
+
 const String server = "http://opendata.artful.co.jp/get/?output=json";
-
 CRGB leds[NUM_LED];
-
 //environment_values
 String envVls;
 float temp, hum, press;
 //sep => separate
-int env_sep[2];
-int env_length[3];
+float env_sep[2];
+float env_length[3];
 bool flag_mills = true;
-
 unsigned long sttTime;
 
 void setup()
 {
   Serial.begin(115200);
   delay(100);
-  wifi_connect("aterm-358916-g", "simizu7856");
+  wifi_connect(ssid, pass);
   configTime(JST, 0, "ntp.nict.jp", "ntp.jst.mfeed.ad.jp");
   FastLED.addLeds<WS2812B, PIN, GRB>(leds, NUM_LED);
   FastLED.setBrightness(BRIGHTNESS);
@@ -40,7 +48,7 @@ void loop()
 {
   if(WiFi.status() == WL_CONNECTED)
   {
-    led(60);
+    led(oclock, dulationMin);
   }
 }
 
@@ -113,12 +121,19 @@ int get_crntTime()
 
 //===================led=====================//
 
-void led(int min)
+void led(int oclock, int dulationMin)
 {
-  if(get_crntTime() == 17)
+  if(get_crntTime() == oclock)
   {
     envVls = get_http();
     temp = get_envData(envVls, 2, "temp");
+    if(temp > 0)
+    {
+      temp = 0;
+    }else if(temp < -10)
+    {
+      temp = -10;
+    }
     hum = get_envData(envVls, 2, "hum");
     press = get_envData(envVls, 2, "press");
     for(int sep_i; sep_i < sizeof(env_sep); sep_i++)
@@ -126,10 +141,10 @@ void led(int min)
       switch (sep_i)
       {
       case 0:
-        env_sep[sep_i] = temp / min * 60;
+        env_sep[sep_i] = temp * -1 / dulationMin * 60;
         break;
       case 1:
-        env_sep[sep_i] = hum / min * 60;
+        env_sep[sep_i] = hum / dulationMin * 60;
         break;
       }
     }
@@ -146,7 +161,7 @@ void led(int min)
     {
       for(int length_i; length_i < sizeof(env_sep); length_i++)
       {
-        env_length[length_i] += env_sep[length_i];
+        env_length[length_i] += map(env_sep[length_i], 0, 10, 0, 100);
       }
       flag_mills = true;
     }
@@ -169,6 +184,12 @@ void temp_bar(int length_temp)
   for(int i_temp = 0; i_temp <= length_temp; i_temp++)
   {
     setPix(i_temp, leds, 100, 149, 237);
+    setPix(i_temp + 300, leds, 100, 149, 237);
+  }
+  for(int i_temp = 299; i_temp >= length_temp; i_temp--)
+  {
+    setPix(i_temp, leds, 100, 149, 237);
+    setPix(i_temp + 300, leds, 100, 149, 237);
   }
 }
 
@@ -177,6 +198,12 @@ void hum_bar(int length_hum)
   for(int i_hum = 149; i_hum >= length_hum; i_hum--)
   {
     setPix(i_hum, leds, 0, 191, 255);
+    setPix(i_hum + 300, leds, 0, 191, 255);
+  }
+  for(int i_hum = 150; i_hum >= length_hum; i_hum++)
+  {
+    setPix(i_hum, leds, 0, 191, 255);
+    setPix(i_hum + 300, leds, 0, 191, 255);
   }
 }
 
