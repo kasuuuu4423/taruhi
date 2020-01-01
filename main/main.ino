@@ -1,12 +1,5 @@
 #include <ArduinoJson.h>
 #include <FastLED.h>
-
-///////////Configurable Value///////////
-  #define NUM_LED 600
-  #define BRIGHTNESS 64
-  #define PIN 0
-///////////Configurable Value///////////
-
 #include <HTTPClient.h>
 #include <HTTP_Method.h>
 #include <time.h>
@@ -15,6 +8,10 @@
 #include <WiFi.h>
 
 ///////////Configurable Value///////////
+#define NUM_LED 600
+#define BRIGHTNESS 64
+#define PIN 0
+
 const char* ssid = "aterm-358916-g";
 const char* pass = "simizu7856";
 int dulationMin = 60;
