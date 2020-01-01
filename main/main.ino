@@ -17,7 +17,8 @@ CRGB leds[NUM_LED];
 //environment_values
 String envVls;
 float temp, hum, press;
-int env_sep[3];
+//sep => separate
+int env_sep[2];
 int env_length[3];
 bool flag_mills = true;
 
@@ -39,7 +40,7 @@ void loop()
 {
   if(WiFi.status() == WL_CONNECTED)
   {
-    led();
+    led(60);
   }
 }
 
@@ -106,65 +107,95 @@ int get_crntTime()
   time_t t;
   struct tm *tm;
   t = time(NULL);
-  tm = licaltime(&t);
+  tm = localtime(&t);
   return tm->tm_hour;
 }
 
 //===================led=====================//
 
-void led()
+void led(int min)
 {
   if(get_crntTime() == 17)
+  {
+    envVls = get_http();
+    temp = get_envData(envVls, 2, "temp");
+    hum = get_envData(envVls, 2, "hum");
+    press = get_envData(envVls, 2, "press");
+    for(int sep_i; sep_i < sizeof(env_sep); sep_i++)
     {
-      envVls = get_http();
-      temp = get_envData(envVls, 2, "temp");
-      hum = get_envData(envVls, 2, "hum");
-      press = get_envData(envVls, 2, "press");
-      for(int sep_i; sep_i > sizeof(env_sep); sep_i++)
+      switch (sep_i)
       {
-        switch (sep_i)
-        {
-        case 0:
-          env_sep[sep_i] = temp / 3600;
-          break;
-        case 1:
-          env_sep[sep_i] = hum / 3600;
-          break;
-        case 2:
-          env_sep[sep_i] = press / 3600;
-          break;
-        }
-      }
-      delay(5000);
-      if(flag_mills)
-      {
-        sttTime = mills();
-        //初期化
-        length_temp = 0;
-        length_hum = 0;
-        length_press = 0;
-        flag_mills = false;
-      }
-      if(mills() - sttTime > 1000)
-      {
-        for(int length_i; length_i > sizeof(env_sep); length_i++)
-        {
-          switch (length_i)
-          {
-          case 0:
-            env_length[length_i] += sep_temp;
-            break;
-          case 1:
-            env_length[length_i] += sep_hum;
-            break;
-          case 2:
-            env_length[length_i] += sep_press;
-            break;
-          }
-        }
-        length_temp += sep_temp;
-        length_hum += sep_hum;
-        length_press += sep_press;
+      case 0:
+        env_sep[sep_i] = temp / min * 60;
+        break;
+      case 1:
+        env_sep[sep_i] = hum / min * 60;
+        break;
       }
     }
+    delay(5000);
+    if(flag_mills)
+    {
+      sttTime = millis();
+      //初期化
+      env_length[0] = 0;
+      env_length[1] = 0;
+      flag_mills = false;
+    }
+    if(millis() - sttTime > 1000)
+    {
+      for(int length_i; length_i < sizeof(env_sep); length_i++)
+      {
+        env_length[length_i] += env_sep[length_i];
+      }
+      flag_mills = true;
+    }
+    temp_bar(env_length[0]);
+    hum_bar(env_length[1]);
+  }
 }
+
+void setPix(int num,  CRGB rin[], int r, int g, int b)
+{
+  rin[num].r = r;
+  rin[num].g = g;
+  rin[num].b = b;
+}
+
+//===================env=====================//
+
+void temp_bar(int length_temp)
+{
+  for(int i_temp = 0; i_temp <= length_temp; i_temp++)
+  {
+    setPix(i_temp, leds, 100, 149, 237);
+  }
+}
+
+void hum_bar(int length_hum)
+{
+  for(int i_hum = 149; i_hum >= length_hum; i_hum--)
+  {
+    setPix(i_hum, leds, 0, 191, 255);
+  }
+}
+
+//void temp_back(int delay_temp, int max_i_temp)
+//{
+//  for(int i = 0; i <= i_temp; i++)
+//  {
+//    setPix(i, leds, 0, 0, 255);
+//  }
+//  if(flag_temp)
+//  {
+//    flag_temp = false;
+//    t_temp = millis();
+//  }
+//  int e_time_temp = millis() - t_temp;
+//  if( e_time_temp >= delay_temp && i_temp <= max_i_temp)
+//  {
+//    i_temp++;
+//    e_time_temp = 0;
+//    flag_temp = true;
+//  }
+//}
