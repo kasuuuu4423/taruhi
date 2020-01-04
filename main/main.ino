@@ -11,11 +11,11 @@
 #define NUM_LED 600
 #define BRIGHTNESS 64
 #define PIN 0
+#define oclock = 17
 
 const char* ssid = "aterm-358916-g";
 const char* pass = "simizu7856";
 int dulationMin = 60;
-int oclock = 17;
 //0=>red, 1=>green, 2=>blue
 int color_temp[3] = {100, 149, 237};
 int color_hum[3] = {0, 191, 255};
@@ -32,6 +32,7 @@ float temp, hum, press;
 float env_sep[2];
 float env_length[3];
 bool flag_mills = true;
+bool flag_getHttp = true;
 unsigned long sttTime;
 int i_hum_forDrops;
 
@@ -53,6 +54,7 @@ void loop()
   {
     led(oclock, dulationMin);
   }
+  delay(5);
 }
 
 //===================wifi=====================//
@@ -128,30 +130,33 @@ void led(int oclock, int dulationMin)
 {
   if(get_crntTime() == oclock)
   {
-    envVls = get_http();
-    temp = get_envData(envVls, 2, "temp");
-    if(temp > 0)
-    {
-      temp = 0;
-    }else if(temp < -10)
-    {
-      temp = -10;
-    }
-    hum = get_envData(envVls, 2, "hum");
-    press = get_envData(envVls, 2, "press");
-    for(int sep_i; sep_i < sizeof(env_sep); sep_i++)
-    {
-      switch (sep_i)
+    if(flag_getHttp){
+      envVls = get_http();
+      temp = get_envData(envVls, 2, "temp");
+      if(temp > 0)
       {
-      case 0:
-        env_sep[sep_i] = temp * -1 / dulationMin * 60;
-        break;
-      case 1:
-        env_sep[sep_i] = hum / dulationMin * 60;
-        break;
+        temp = 0;
       }
+      else if(temp < -10)
+      {
+        temp = -10;
+      }
+      hum = get_envData(envVls, 2, "hum");
+      press = get_envData(envVls, 2, "press");
+      for(int sep_i; sep_i < sizeof(env_sep); sep_i++)
+      {
+        switch (sep_i)
+        {
+        case 0:
+          env_sep[sep_i] = temp * -1 / dulationMin * 60;
+          break;
+        case 1:
+          env_sep[sep_i] = hum / dulationMin * 60;
+          break;
+        }
+      }
+      flag_getHttp = false;
     }
-    delay(5000);
     if(flag_mills)
     {
       sttTime = millis();
@@ -263,23 +268,3 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
     flag_dropsSpeed = true;
   }
 }
-
-//void temp_back(int delay_temp, int max_i_temp)
-//{
-//  for(int i = 0; i <= i_temp; i++)
-//  {
-//    setPix(i, leds, 0, 0, 255);
-//  }
-//  if(flag_temp)
-//  {
-//    flag_temp = false;
-//    t_temp = millis();
-//  }
-//  int e_time_temp = millis() - t_temp;
-//  if( e_time_temp >= delay_temp && i_temp <= max_i_temp)
-//  {
-//    i_temp++;
-//    e_time_temp = 0;
-//    flag_temp = true;
-//  }
-//}
