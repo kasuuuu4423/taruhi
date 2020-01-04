@@ -7,9 +7,6 @@
 #include <WebServer.h>
 #include <WiFi.h>
 
-
-
-
 ///////////Configurable Value///////////
 #define NUM_LED 600
 #define BRIGHTNESS 64
@@ -23,12 +20,7 @@ int oclock = 17;
 int color_temp[3] = {100, 149, 237};
 int color_hum[3] = {0, 191, 255};
 int color_drops[3] = {0, 191, 255};
-// color_temp[0] = 100; color_temp[1] = 149; color_temp[2] = 237;
-// color_hum[0] = 0; color_hum[1] = 191; color_hum[2] = 255;
-// color_drops[0] = 0; color_drops[1] = 191; color_drops[2] = 255;
 ///////////Configurable Value///////////
-
-
 
 const String server = "http://opendata.artful.co.jp/get/?output=json";
 CRGB leds[NUM_LED];
@@ -41,6 +33,7 @@ float env_sep[2];
 float env_length[3];
 bool flag_mills = true;
 unsigned long sttTime;
+int i_hum_forDrops;
 
 void setup()
 {
@@ -191,29 +184,30 @@ void setPix(int num,  CRGB rin[], int r, int g, int b)
 
 void temp_bar(int length_temp, int color[3])
 {
-  for(int i_temp = 0; i_temp <= length_temp; i_temp++)
+  for(int i_temp_0 = 0; i_temp_0 <= length_temp; i_temp_0++)
   {
-    setPix(i_temp, leds, color[0], color[1], color[2]);
-    setPix(i_temp + 300, leds, color[0], color[1], color[2]);
+    setPix(i_temp_0, leds, color[0], color[1], color[2]);
+    setPix(i_temp_0 + 300, leds, color[0], color[1], color[2]);
   }
-  for(int i_temp = 299; i_temp >= length_temp; i_temp--)
+  for(int i_temp_1 = 299; i_temp_1 >= length_temp; i_temp_1--)
   {
-    setPix(i_temp, leds, color[0], color[1], color[2]);
-    setPix(i_temp + 300, leds, color[0], color[1], color[2]);
+    setPix(i_temp_1, leds, color[0], color[1], color[2]);
+    setPix(i_temp_1 + 300, leds, color[0], color[1], color[2]);
   }
 }
 
 void hum_bar(int length_hum, int color[3])
 {
-  for(int i_hum = 149; i_hum >= length_hum; i_hum--)
+  for(int i_hum_0 = 149; i_hum_0 >= length_hum; i_hum_0--)
   {
-    setPix(i_hum, leds, color[0], color[1], color[2]);
-    setPix(i_hum + 300, leds, color[0], color[1], color[2]);
+    i_hum_forDrops = i_hum_0;
+    setPix(i_hum_0, leds, color[0], color[1], color[2]);
+    setPix(i_hum_0 + 300, leds, color[0], color[1], color[2]);
   }
-  for(int i_hum = 150; i_hum >= length_hum; i_hum++)
+  for(int i_hum_1 = 150; i_hum_1 >= length_hum; i_hum_1++)
   {
-    setPix(i_hum, leds, color[0], color[1], color[2]);
-    setPix(i_hum + 300, leds, color[0], color[1], color[2]);
+    setPix(i_hum_1, leds, color[0], color[1], color[2]);
+    setPix(i_hum_1 + 300, leds, color[0], color[1], color[2]);
   }
 }
 
@@ -225,7 +219,7 @@ unsigned long time_dropsSpeed;
 int duration_drops;
 int i_temp_forDrops;
 int i_drops;
-void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3])
+void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3], float i_hum)
 {
   if(flag_drops)
   {
@@ -250,9 +244,23 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
     }
     setPix(i_drops + i_temp_forDrops, leds, color[0], color[1], color[2]);
     if(!i_drops == 0)
-      {
-        setPix(i_drops + i_temp_forDrops - 1, leds, 0, 0, 0);
-      }
+    {
+      setPix(i_drops + i_temp_forDrops - 1, leds, 0, 0, 0);
+    }
+    if(i_drops + i_temp_forDrops - 1 >= i_hum)
+    {
+      setPix(i_drops + i_temp_forDrops, leds, 0, 0, 0);
+      i_drops = 0;
+      eTime_drops = 0;
+      flag_drops = true;
+      flag_drops_start = true;
+    }
+    else
+    {
+      i_drops++;
+    }
+    eTime_dropsSpeed = 0;
+    flag_dropsSpeed = true;
   }
 }
 
