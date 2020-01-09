@@ -19,7 +19,7 @@ float durationMin = 3;
 //0=>red, 1=>green, 2=>blue
 int color_temp[3] = {0, 149, 237};
 int color_hum[3] = {0, 191, 255};
-int color_drops[3] = {0, 255, 0};
+int color_drops[3] = {0, 191, 255};
 ///////////Configurable Value///////////
 
 const String server = "http://opendata.artful.co.jp/get/?output=json";
@@ -35,6 +35,8 @@ bool flag_mills = true;
 bool flag_getHttp = true;
 unsigned long sttTime;
 int i_hum_forDrops;
+int duration_bounce = 0;
+float duration_speed_bounce = 0.1;
 
 void setup()
 {
@@ -198,7 +200,8 @@ void led(int oclock, float durationMin)
     }
     temp_bar((int)env_length[0], color_temp);
     hum_bar((int)env_length[1], color_hum);
-    drops(1000, 2000, 10, color_drops, i_hum_forDrops);
+    drops(1000, 2000, 10, color_drops, i_hum_forDrops, 2);
+    drops(1000, 2000, 10, color_drops, i_hum_forDrops, 3);
   }
 }
 
@@ -223,12 +226,12 @@ void temp_bar(int length_temp, int color[3])
   for(int i_temp_0 = 0; i_temp_0 <= length_temp; i_temp_0++)
   {
     setPix(i_temp_0, leds, color[0], color[1], color[2]);
-    //setPix(i_temp_0 + 300, leds, color[0], color[1], color[2]);
+    setPix(i_temp_0 + 300, leds, color[0], color[1], color[2]);
   }
  for(int i_temp_1 = 299; i_temp_1 >= 299 - length_temp; i_temp_1--)
  {
    setPix(i_temp_1, leds, color[0], color[1], color[2]);
-   //setPix(i_temp_1 + 300, leds, color[0], color[1], color[2]);
+   setPix(i_temp_1 + 300, leds, color[0], color[1], color[2]);
  }
 }
 
@@ -265,10 +268,11 @@ bool flag_initBounce = true;
 unsigned long time_bounce;
 bool flag_bounce_forDrops = true;
 bool flag_i_hum_forBounce = true;
+int color_drops_forBounce[3];
 
 
 
-void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3], int i_hum)
+void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3], int i_hum, int led_NUM)
 {
   if(flag_drops)
   {
@@ -295,22 +299,49 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
       }
       if(flag_bounce_forDrops)
       {
-        setPix(i_drops + i_temp_forDrops, leds, color[0], color[1], color[2]);
-        setPix(299 - i_temp_forDrops - i_drops, leds, color[0], color[1], color[2]);
-        Serial.println("G");
+        switch (led_NUM)
+        {
+          case 1:
+            setPix(i_drops + i_temp_forDrops, leds, color[0], color[1], color[2]);
+            break;
+          case 2:
+            setPix(299 - i_drops - i_temp_forDrops, leds, color[0], color[1], color[2]);    
+            break;
+          case 3:
+            setPix(300 + i_drops + i_temp_forDrops, leds, color[0], color[1], color[2]);
+            break;
+          case 4:
+            setPix(599 - i_drops - i_temp_forDrops, leds, color[0], color[1], color[2]);
+            break;
+        }
       }
-      if(!i_drops == 0)
+      if(!( i_drops == 0 )&& flag_bounce_forDrops)
       {
-        setPix(i_drops + i_temp_forDrops - 1, leds, 0, 0, 0);
-        setPix(299 - i_temp_forDrops - i_drops + 1, leds, 0, 0, 0);
-        
+        switch (led_NUM)
+        {
+          case 1:
+            setPix(i_drops + i_temp_forDrops - 1, leds, 0, 0, 0);
+            break;
+          case 2:
+            setPix(299 - i_temp_forDrops - i_drops + 1, leds, 0, 0, 0);   
+            break;
+          case 3:
+            setPix(i_drops + i_temp_forDrops + 299, leds, 0, 0, 0);
+            break;
+          case 4:
+            setPix(599 - i_temp_forDrops - i_drops + 1, leds, 0, 0, 0);
+            break;
+        }
       }
       if(i_drops + i_temp_forDrops + 1 >= i_hum)
       {
-        flag_bounce_forDrops = false;
         if( flag_i_hum_forBounce )
         {
           flag_i_hum_forBounce = false;
+          for(int i_array_bounce = 0; i_array_bounce < 3; i_array_bounce++)
+          {
+            color_drops_forBounce[i_array_bounce] = color_drops[i_array_bounce];
+          }
           i_hum_forBounce = i_hum;
         }
         if(flag_bounce)
@@ -319,37 +350,77 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
           time_bounce = millis();
         }
         int eTime_bounce = millis() - time_bounce;
-        if( eTime_bounce >= 500 && i_bounce <= 10)
+        if( eTime_bounce >= duration_bounce && i_bounce <= 8)
         {
           if(i_bounce == 0)
           {
-            //setPix(i_drops + i_temp_forDrops, leds, 0, 0, 0);
-            Serial.println("あああ");
+            setPix(i_drops + i_temp_forDrops, leds, 0, 0, 0);
           }
           
           if(!i_bounce == 0)
           {
-            //setPix(i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
-            setPix(i_hum_forBounce - i_bounce, leds, 255, 0, 255);
-            Serial.println("0以外");
+            switch (led_NUM)
+              {
+                case 1:
+                  setPix(i_hum_forBounce - i_bounce, leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+                  break;
+                case 2:
+                  setPix(299 - i_hum_forBounce + i_bounce, leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+                  break;
+                case 3:
+                  setPix(300 + i_hum_forBounce - i_bounce, leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+                  break;
+                case 4:
+                  setPix(599 - i_hum_forBounce + i_bounce, leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+                  break;
+              }
           }
           if(!(i_bounce <= 1))
           {
-            // setPix(i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
-            Serial.println("に");
+            switch (led_NUM)
+              {
+                case 1:
+                  setPix(i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
+                  break;
+                case 2:
+                  setPix(299 - i_hum_forBounce + i_bounce - 1, leds, 0, 0, 0);
+                  break;
+                case 3:
+                  setPix(300 + i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
+                  break;
+                case 4:
+                  setPix(599 - i_hum_forBounce + i_bounce - 1, leds, 0, 0, 0);
+                  break;
+              }
           }
           flag_bounce = true;
           eTime_bounce = 0;
-          Serial.println( i_hum_forBounce - i_bounce - 1);
-          Serial.println( i_hum_forBounce - i_bounce );
-          Serial.println( i_bounce );
+
+          duration_bounce = duration_bounce + duration_speed_bounce;
+          duration_speed_bounce = duration_speed_bounce * 2;
           i_bounce++;
-        }else if(i_bounce == 11)
+          for(int i_array_bounce = 0; i_array_bounce < 3; i_array_bounce++)
+          {
+            color_drops_forBounce[i_array_bounce] = color_drops_forBounce[i_array_bounce] * 0.75;
+          }
+
+        }else if( eTime_bounce >= duration_bounce && i_bounce == 9)
         {
-          Serial.println("中間");
-          // setPix(i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
-          // setPix(i_hum_forBounce - i_bounce, leds, 0, 0, 0);
-          // setPix(i_hum_forBounce - i_bounce - 1, leds, 0, 0, 0);
+          switch (led_NUM)
+            {
+              case 1:
+                setPix(i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
+                break;
+              case 2:
+                setPix(299 - i_hum_forBounce + i_bounce - 1, leds, 0, 0, 0);
+                break;
+              case 3:
+                setPix(300 + i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
+                break;
+              case 4:
+                setPix(599 - i_hum_forBounce + i_bounce - 1, leds, 0, 0, 0);
+                break;
+            }
           flag_initBounce = false;
           i_bounce = 10000;
         }else if(!(flag_initBounce))
@@ -367,6 +438,8 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
           flag_initBounce = true;
           flag_bounce_forDrops = true;
           flag_i_hum_forBounce = true;
+          duration_bounce = 0;
+          duration_speed_bounce = 0.1;
         }
       }
       else
