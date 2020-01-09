@@ -15,7 +15,7 @@
 
 const char* ssid = "くさか";
 const char* pass = "aaaabbbb";
-float durationMin = 1;
+float durationMin = 3;
 //0=>red, 1=>green, 2=>blue
 int color_temp[3] = {0, 149, 237};
 int color_hum[3] = {0, 191, 255};
@@ -264,6 +264,7 @@ bool flag_bounce = true;
 bool flag_initBounce = true;
 unsigned long time_bounce;
 bool flag_bounce_forDrops = true;
+bool flag_i_hum_forBounce = true;
 
 
 
@@ -307,34 +308,41 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
       if(i_drops + i_temp_forDrops + 1 >= i_hum)
       {
         flag_bounce_forDrops = false;
+        if( flag_i_hum_forBounce )
+        {
+          flag_i_hum_forBounce = false;
+          i_hum_forBounce = i_hum;
+        }
         if(flag_bounce)
         {
           flag_bounce = false;
           time_bounce = millis();
-          i_hum_forBounce = i_hum;
         }
         int eTime_bounce = millis() - time_bounce;
-        if( eTime_bounce >= 50 && i_bounce <= 10)
+        if( eTime_bounce >= 500 && i_bounce <= 10)
         {
           if(i_bounce == 0)
           {
-            setPix(i_drops + i_temp_forDrops, leds, 0, 0, 0);
+            //setPix(i_drops + i_temp_forDrops, leds, 0, 0, 0);
             Serial.println("あああ");
+          }
+          
+          if(!i_bounce == 0)
+          {
+            //setPix(i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
+            setPix(i_hum_forBounce - i_bounce, leds, 255, 0, 255);
+            Serial.println("0以外");
+          }
+          if(!(i_bounce <= 1))
+          {
+            // setPix(i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
+            Serial.println("に");
           }
           flag_bounce = true;
           eTime_bounce = 0;
-          if(!i_bounce == 0)
-          {
-            //setPix(i_hum_forBounce - i_bounce - 1, leds, 0, 0, 255);
-            // setPix(i_hum_forBounce - i_bounce, leds, 0, 0, 0);
-          }
-          if(!i_bounce <= 1)
-          {
-            // setPix(i_hum_forBounce - i_bounce + 1, leds, 0, 0, 0);
-            Serial.println("いいい");
-          }
-          Serial.println(i_hum_forBounce - i_bounce);
-          Serial.println(i_hum_forBounce - i_bounce + 1);
+          Serial.println( i_hum_forBounce - i_bounce - 1);
+          Serial.println( i_hum_forBounce - i_bounce );
+          Serial.println( i_bounce );
           i_bounce++;
         }else if(i_bounce == 11)
         {
@@ -358,6 +366,7 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
           flag_bounce = true;
           flag_initBounce = true;
           flag_bounce_forDrops = true;
+          flag_i_hum_forBounce = true;
         }
       }
       else
