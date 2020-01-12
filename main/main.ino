@@ -238,9 +238,9 @@ void hum_bar(int length_hum, int color[3])
 
 
 
-void set_time(bool flag, unsigned long time)
+void set_time(bool flag, unsigned long time_wanaSet)
 {
-  time = millis();
+  time_wanaSet = millis();
   flag = false;
 }
 
