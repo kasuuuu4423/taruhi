@@ -13,8 +13,8 @@
 #define PIN 0
 #define Oclock 15
 
-const char* ssid = "くさか";
-const char* pass = "aaaabbbb";
+const char* ssid = "SIAF-FREE-WiFi";
+const char* pass = "siafsiaf";
 float durationMin = 3;
 //0=>red, 1=>green, 2=>blue
 int color_temp[3] = {0, 149, 237};
@@ -31,10 +31,15 @@ float temp, hum, air_press;
 //sep => separate
 float env_sep[2];
 float env_length[2] = {0, 0};
+int temp_int;
+int delay_temp;
+int hum_int;
+int delay_hum;
 bool flag_mills = true;
 bool flag_getHttp = true;
 unsigned long sttTime;
 int i_hum_forDrops;
+int i;
 int duration_bounce[4] = {0, 0, 0, 0};
 float duration_speed_bounce [4]= {0.1, 0.1, 0.1, 0.1};
 
@@ -55,7 +60,7 @@ void loop()
 
   if(WiFi.status() == WL_CONNECTED)
   {
-    led(Oclock, durationMin);
+    led(Oclock);
     FastLED.show();
   }
   delay(5);
@@ -130,7 +135,7 @@ int get_crntTime()
 
 //===================led=====================//
 
-void led(int oclock, float durationMin)
+void led(int oclock)
 {
   if(true)//||get_crntTime() == Oclock)
   {
@@ -149,60 +154,62 @@ void led(int oclock, float durationMin)
       hum = get_envData(envVls, 2, "hum");
       if(hum < 35)
       {
-        hum = 35;  
+        hum = 35;
       }
       else if(hum > 60)
       {
         hum = 60;  
       }
-      air_press = get_envData(envVls, 2, "air_press");
-      for(int sep_i = 0; sep_i <= sizeof(env_sep); sep_i++)
-      {
-        switch (sep_i)
-        {
-        case 0:
-          env_sep[sep_i] = temp * -10 / (durationMin * 60);
-          break;
-        case 1:
-          env_sep[sep_i] = (hum - 35) * 2 / (durationMin * 60);
-          break;
-        }
-      }
-      flag_getHttp = false;
+      // ↑ constrainで処理
+
+      Serial.println(temp);
+      temp = temp * -10 + 0.5;
+      temp_int = (int)temp;
+      Serial.println(temp_int);
+      delay_temp = 3600000 / temp_int;
+      Serial.println(delay_temp);
+      Serial.println(hum);
+      hum = ( hum - 34.5 ) * 2;
+      hum_int = (int)hum;
+      Serial.println(hum_int);
+      delay_hum = 3600000 / hum_int;
+      Serial.println(delay_hum);
     }
-    if(flag_mills)
-    {
-      sttTime = millis();
-      flag_mills = false;
-    }
-    int eTime_led = millis() - sttTime;
-    if(eTime_led > 1000)
-    {
-      for(int length_i = 0; length_i < 2; length_i++)
-      {
-        switch(length_i)
-        {
-          case 0:
-            if(env_length[0] / 10 <= temp * -1)
-            {
-              env_length[0] += env_sep[0];
-            }
-            break;
-          case 1:
-            if(env_length[1] <= env_sep[1] * 60 * durationMin)
-            {
-              env_length[length_i] += env_sep[length_i];
-            }
-            break;
-        }
-      }
-      flag_mills = true;
-    }
-    temp_bar((int)env_length[0], color_temp);
-    hum_bar((int)env_length[1], color_hum);
-    drops(1000, 10000, 10, color_drops, i_hum_forDrops, 2);
-    //drops(1000, 2000, 10, color_drops, i_hum_forDrops, 3);
+    flag_getHttp = false;
   }
+    // if(flag_mills)
+    // {
+    //   sttTime = millis();
+    //   flag_mills = false;
+    // }
+    // int eTime_led = millis() - sttTime;
+    // if(eTime_led > 1000)
+    // {
+    //   for(int length_i = 0; length_i < 2; length_i++)
+    //   {
+    //     switch(length_i)
+    //     {
+    //       case 0:
+    //         if(env_length[0] / 10 <= temp * -1)
+    //         {
+    //           env_length[0] += env_sep[0];
+    //         }
+    //         break;
+    //       case 1:
+    //         if(env_length[1] <= env_sep[1] * 60 * durationMin)
+    //         {
+    //           env_length[length_i] += env_sep[length_i];
+    //         }
+    //         break;
+    //     }
+    //   }
+    //   flag_mills = true;
+    // }
+  temp_bar(temp_int, 5000, color_temp);
+  hum_bar(hum_int, 5000, color_hum);
+  drops(1000, 10000, 0, color_drops);
+  //bounce();
+  //drops(1000, 2000, 10, color_drops, i_hum_forDrops, 3);
 }
 
 void setPix(int num,  CRGB rin[], int r, int g, int b)
@@ -221,33 +228,73 @@ void setall(){
 
 //===================env=====================//
 
-void temp_bar(int length_temp, int color[3])
+bool flag_temp = true;
+int i_temp = 0;
+int t_temp = 0;
+int i_forTemp;
+
+bool flag_hum = true;
+int i_hum = 0;
+int t_hum = 0;
+int i_forHum;
+
+
+void temp_bar(int length_temp, int delay_temp,  int color[3])
 {
-  for(int i_temp_0 = 0; i_temp_0 <= length_temp; i_temp_0++)
+  if(flag_temp == true)
   {
-    setPix(i_temp_0, leds, color[0], color[1], color[2]);
-    setPix(i_temp_0 + 300, leds, color[0], color[1], color[2]);
+    i_forTemp = 0;
+    flag_temp = false;
+    t_temp = millis();
   }
- for(int i_temp_1 = 299; i_temp_1 >= 299 - length_temp; i_temp_1--)
- {
-   setPix(i_temp_1, leds, color[0], color[1], color[2]);
-   setPix(i_temp_1 + 300, leds, color[0], color[1], color[2]);
- }
+  int e_time_temp = millis() - t_temp;
+  if( e_time_temp >= delay_temp && i_temp <= length_temp)
+  {
+    Serial.println("tempが1増える処理");
+    i_temp++;
+    e_time_temp = 0;
+    flag_temp = true;
+  }
+  if(i_forTemp <= i_temp)
+  {
+    setPix(i_forTemp, leds, color[0], color[1], color[2]);
+    setPix(299 - i_forTemp, leds, color[0], color[1], color[2]);
+    setPix(300 + i_forTemp, leds, color[0], color[1], color[2]);
+    setPix(599 - i_forTemp, leds, color[0], color[1], color[2]);
+    i_forTemp++;
+  } 
+  else
+  {
+    i_forTemp = 0;
+  }
 }
 
-void hum_bar(int length_hum, int color[3])
+void hum_bar(int length_hum, int delay_hum, int color[3])
 {
-  for(int i_hum_0 = 149; i_hum_0 >= 149 - length_hum; i_hum_0--)
+  if(flag_hum == true)
   {
-    i_hum_forDrops = i_hum_0;
-    setPix(i_hum_0, leds, color[0], color[1], color[2]);
-    setPix(i_hum_0 + 300, leds, color[0], color[1], color[2]);
+    i_forHum = 0;
+    flag_hum = false;
+    t_hum = millis();
   }
-
-  for(int i_hum_1 = 150; i_hum_1 <= 150 + length_hum; i_hum_1++)
+  int e_time_hum = millis() - t_hum;
+  if( e_time_hum >= delay_hum && i_hum <= length_hum)
   {
-    setPix(i_hum_1, leds, color[0], color[1], color[2]);
-    setPix(i_hum_1 + 300, leds, color[0], color[1], color[2]);
+    i_hum++;
+    e_time_hum = 0;
+    flag_hum = true;
+  }
+  if(i_forHum <= i_hum)
+  {
+    setPix(149 - i_forHum, leds, color[0], color[1], color[2]);
+    setPix(150 + i_forHum, leds, color[0], color[1], color[2]);
+    setPix(449 - i_forHum, leds, color[0], color[1], color[2]);
+    setPix(450 + i_forHum, leds, color[0], color[1], color[2]);
+    i_forHum++;
+  } 
+  else 
+  {
+    i_forHum = 0;
   }
 }
 
@@ -257,7 +304,7 @@ bool flag_drops_start[4] = {true, true, true, true};
 unsigned long time_drops[4];
 unsigned long time_dropsSpeed[4];
 int duration_drops[4];
-int i_temp_forDrops[4];
+int i_temp_forDrops;
 int i_drops[4];
 int n[4] = {1, 1, 1, 1};
 int i_bounce[4] = {0, 0, 0, 0};
@@ -270,12 +317,14 @@ bool flag_bounce_forDrops[4] = {true, true, true, true};
 bool flag_i_hum_forBounce[4] = {true, true, true, true};
 int color_drops_forBounce[3];
 
+int eTime_dropsSpeed[4];
+int eTime_drops[4];
 
 
-void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3], int i_hum, int led_NUM)
+
+void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3])
 {
-  for(int i = 0; i < 4; i++)
-  {
+  i = 0;
     if(flag_drops[i])
     {
       time_drops[i] = millis();
@@ -287,208 +336,165 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
       time_dropsSpeed[i] = millis();
       flag_dropsSpeed[i] = false;
     }
-    int eTime_dropsSpeed[4];
     eTime_dropsSpeed[i] = millis() - time_dropsSpeed[i];
-    int eTime_drops[4];
     eTime_drops[i] = millis() - time_drops[i];
     if(eTime_drops[i] >= duration_drops[i])
     {
-      if(eTime_dropsSpeed[i] >= duration_dropsSpeed - duration_dropsGravity[i])
+    //   Serial.print("あああ");
+    //   Serial.println(i);
+      if(eTime_dropsSpeed[i] >= duration_dropsSpeed )
       {
+        eTime_dropsSpeed[i] = 0;
+        flag_dropsSpeed[i] = true;
         if(flag_drops_start[i])
         {
-          i_temp_forDrops[i] = (int)env_length[0] + 1;
+          i_temp_forDrops = temp_int + 1;
           i_drops[i] = 0;
           flag_drops_start[i] = false;
         }
-        if(flag_bounce_forDrops[i])
+        else 
         {
-          switch (led_NUM)
-          {
-            case 1:
-              setPix(i_drops[1] + i_temp_forDrops[1], leds, color[0], color[1], color[2]);
-              break;
-            case 2:
-              setPix(299 - i_drops[1] - i_temp_forDrops[1], leds, color[0], color[1], color[2]);
-              setPix(299 - i_drops[2] - i_temp_forDrops[2], leds, color[0], color[1], color[2]);
-              setPix(300 + i_drops[3] + i_temp_forDrops[3], leds, color[0], color[1], color[2]);
-              setPix(300 + i_drops[4] + i_temp_forDrops[4], leds, color[0], color[1], color[2]);
-              break;
-            case 3:
-              setPix(300 + i_drops[i] + i_temp_forDrops[i], leds, color[0], color[1], color[2]);
-              break;
-            case 4:
-              setPix(599 - i_drops[i] - i_temp_forDrops[i], leds, color[0], color[1], color[2]);
-              break;
-          }
-        }
-        if(!( i_drops[i] == 0 )&& flag_bounce_forDrops[i])
-        {
-          switch (led_NUM)
-          {
-            case 1:
-              setPix(i_drops[i] + i_temp_forDrops[i] - 1, leds, 0, 0, 0);
-              break;
-            case 2:
-              setPix(299 - i_drops[1] - i_temp_forDrops[1] + 1, leds, 0, 0, 0);
-              setPix(299 - i_drops[2] - i_temp_forDrops[2] + 1, leds, 0, 0, 0);
-              setPix(i_drops[3] + i_temp_forDrops[3] + 299, leds, 0, 0, 0);
-              setPix(i_drops[4] + i_temp_forDrops[4] + 299, leds, 0, 0, 0);
-              break;
-            case 3:
-              setPix(i_drops[i] + i_temp_forDrops[i] + 299, leds, 0, 0, 0);
-              break;
-            case 4:
-              setPix(599 - i_drops[i] - i_temp_forDrops[i] + 1, leds, 0, 0, 0);
-              break;
-          }
-        }
-        if(i_drops[i] + i_temp_forDrops[i] + 1 >= i_hum)
-        {
-          if( flag_i_hum_forBounce[i] )
-          {
-            flag_i_hum_forBounce[i] = false;
-            for(int i_array_bounce = 0; i_array_bounce < 3; i_array_bounce++)
-            {
-              color_drops_forBounce[i_array_bounce] = color_drops[i_array_bounce];
-            }
-            i_hum_forBounce[i] = i_hum;
-          }
-          if(flag_bounce[i])
-          {
-            flag_bounce[i] = false;
-            time_bounce[i] = millis();
-          }
-          int eTime_bounce[4];
-          eTime_bounce[i] = millis() - time_bounce[i];
-          if( eTime_bounce[i] >= duration_bounce[i] && i_bounce[i] <= 8)
-          {
-            if(i_bounce[i] == 0)
-            {
-              setPix(i_drops[i] + i_temp_forDrops[i], leds, 0, 0, 0);
-            }
-            
-            if(!i_bounce[i] == 0)
-            {
-              switch (led_NUM)
-                {
-                  case 1:
-                    setPix(i_hum_forBounce[i] - i_bounce[i], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
-                    break;
-                  case 2:
-                    setPix(299 - i_hum_forBounce[1] + i_bounce[1], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
-                    setPix(299 - i_hum_forBounce[2] + i_bounce[2], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
-                    setPix(300 + i_hum_forBounce[3] - i_bounce[3], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
-                    setPix(300 + i_hum_forBounce[4] - i_bounce[4], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
-                    break;
-                  case 3:
-                    setPix(300 + i_hum_forBounce[i] - i_bounce[i], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
-                    break;
-                  case 4:
-                    setPix(599 - i_hum_forBounce[i] + i_bounce[i], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
-                    break;
-                }
-            }
-            if(!(i_bounce[i] <= 1))
-            {
-              switch (led_NUM)
-                {
-                  case 1:
-                    setPix(i_hum_forBounce[i] - i_bounce[i] + 1, leds, 0, 0, 0);
-                    break;
-                  case 2:
-                    setPix(299 - i_hum_forBounce[1] + i_bounce[1] - 1, leds, 0, 0, 0);
-                    setPix(299 - i_hum_forBounce[2] + i_bounce[2] - 1, leds, 0, 0, 0);
-                    setPix(300 + i_hum_forBounce[3] - i_bounce[3] + 1, leds, 0, 0, 0);
-                    setPix(300 + i_hum_forBounce[4] - i_bounce[4] + 1, leds, 0, 0, 0);
-                    break;
-                  case 3:
-                    setPix(300 + i_hum_forBounce[i] - i_bounce[i] + 1, leds, 0, 0, 0);
-                    break;
-                  case 4:
-                    setPix(599 - i_hum_forBounce[i] + i_bounce[i] - 1, leds, 0, 0, 0);
-                    break;
-                }
-            }
-            flag_bounce[i] = true;
-            eTime_bounce[i] = 0;
-
-            duration_bounce[i] = duration_bounce[i] + duration_speed_bounce[i];
-            duration_speed_bounce[i] = duration_speed_bounce[i] * 2;
-            i_bounce[i]++;
-            for(int i_array_bounce = 0; i_array_bounce < 3; i_array_bounce++)
-            {
-              color_drops_forBounce[i_array_bounce] = color_drops_forBounce[i_array_bounce] * 0.75;
-            }
-
-          }else if( eTime_bounce[i] >= duration_bounce[i] && i_bounce[i] == 9)
-          {
-            switch (led_NUM)
-              {
-                case 1:
-                  setPix(i_hum_forBounce[i] - i_bounce[i] + 1, leds, 0, 0, 0);
-                  break;
-                case 2:
-                  for(int j = -1; j < 2 ; j++)
-                  {
-                    setPix( j + 299 - i_hum_forBounce[1] + i_bounce[1] - 1, leds, 0, 0, 0);
-                  }
-                  for(int j = -1; j < 2 ; j++)
-                  {
-                    setPix(j + 299 - i_hum_forBounce[2] + i_bounce[2] - 1, leds, 0, 0, 0);
-                  }
-                  for(int j = -1; j < 2 ; j++)
-                  {
-                    setPix(j + 300 + i_hum_forBounce[3] - i_bounce[3] + 1, leds, 0, 0, 0);
-                  }
-                  for(int j = -1; j < 2 ; j++)
-                  {
-                    setPix(j + 300 + i_hum_forBounce[4] - i_bounce[4] + 1, leds, 0, 0, 0);
-                  }
-                  break;
-                case 3:
-                  setPix(300 + i_hum_forBounce[i] - i_bounce[i] + 1, leds, 0, 0, 0);
-                  break;
-                case 4:
-                  setPix(599 - i_hum_forBounce[i] + i_bounce[i] - 1, leds, 0, 0, 0);
-                  break;
-              }
-            flag_initBounce[i] = false;
-            i_bounce[i] = 10000;
-          }else if(!(flag_initBounce[i]))
-          {
-            Serial.println("初期化！！！！");
-            Serial.println(i);
-            i_drops[i] = 0;
-            eTime_drops[i] = 0;
-            duration_dropsGravity[i] = 0.0;
-            flag_drops[i] = true;
-            flag_drops_start[i] = true;
-            n[i] = 1;
-            i_hum_forBounce[i] = 0;
-            i_bounce[i] = 0;
-            flag_bounce[i] = true;
-            flag_initBounce[i] = true;
-            flag_bounce_forDrops[i] = true;
-            flag_i_hum_forBounce[i] = true;
-            duration_bounce[i] = 0;
-            duration_speed_bounce[i] = 0.1;
-          }
-        }
-        else
-        {
-          if(duration_dropsSpeed - duration_dropsGravity[i] > 0)
-          {
-            double a = sqrt( n[i] );
-            double b = sqrt( n[i] - 1 );
-            duration_dropsGravity[i] = duration_dropsGravity[i] + ( 8 * a ) - ( 8 * b );
-          }
           i_drops[i]++;
           n[i]++;
         }
-        eTime_dropsSpeed[i] = 0;
-        flag_dropsSpeed[i] = true;
+        if(!flag_drops_start[i])
+        {
+          //setPix(299 - i_drops[0] - i_temp_forDrops, leds, color[0], color[1], color[2]);
+          //setPix(299 - i_drops[1] - i_temp_forDrops, leds, color[0], color[1], color[2]);
+          //setPix(300 + i_drops[2] + i_temp_forDrops, leds, color[0], color[1], color[2]);
+          //setPix(300 + i_drops[3] + i_temp_forDrops, leds, color[0], color[1], color[2]);
+
+          setPix(i_drops[0] + i_temp_forDrops, leds, color[0], color[1], color[2]);
+        }
+        if( !i_drops[i] == 0 )
+        {
+          //setPix(299 - i_drops[0] - i_temp_forDrops + 1, leds, 0, 0, 0);
+          //setPix(299 - i_drops[1] - i_temp_forDrops + 1, leds, 0, 0, 0);
+          //setPix(i_drops[2] + i_temp_forDrops + 299, leds, 0, 0, 0);
+          //setPix(i_drops[3] + i_temp_forDrops + 299, leds, 0, 0, 0);
+
+          setPix(i_drops[0] + i_temp_forDrops - 1 , leds, 0, 0, 0);
+        }
+        if( i_drops[i] > 148 - i_hum - i_temp_forDrops)
+        {
+          Serial.print("i_drops");
+          Serial.println(i_drops[i]);
+          Serial.print("i_hum");
+          Serial.println(i_hum);
+          Serial.print("i_temp_forDrops");
+          Serial.println(i_temp_forDrops);
+          i_drops[i] = 0;
+          n[i] = 0;
+          flag_drops_start[i] = true;
+
+
+
+        }
+        
+          // if(duration_dropsSpeed - duration_dropsGravity[i] > 0)
+          // {
+          //   double a = sqrt( n[i] );
+          //   double b = sqrt( n[i] - 1 );
+          //   duration_dropsGravity[i] = duration_dropsGravity[i] + ( 8 * a ) - ( 8 * b );
+          // }
+
+          // i_drops[i]++;
+          // Serial.println(i_drops[i]);
       }
+    }
+  
+}
+
+void bounce()
+{ 
+  if(i_drops[i] + i_temp_forDrops + 1 >= i_hum)
+  {
+    if( flag_i_hum_forBounce[i] )
+    {
+      flag_i_hum_forBounce[i] = false;
+      for(int i_array_bounce = 0; i_array_bounce < 3; i_array_bounce++)
+      {
+        color_drops_forBounce[i_array_bounce] = color_drops[i_array_bounce];
+      }
+      i_hum_forBounce[i] = i_hum;
+    }
+    if(flag_bounce[i])
+    {
+      flag_bounce[i] = false;
+      time_bounce[i] = millis();
+    }
+    int eTime_bounce[4];
+    eTime_bounce[i] = millis() - time_bounce[i];
+    if( eTime_bounce[i] >= duration_bounce[i] && i_bounce[i] <= 8)
+    {
+      if(i_bounce[i] == 0)
+      {
+        setPix(i_drops[i] + i_temp_forDrops, leds, 0, 0, 0);
+      }
+          
+      if(!i_bounce[i] == 0)
+      {
+        setPix(299 - i_hum_forBounce[0] + i_bounce[0], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+        setPix(299 - i_hum_forBounce[1] + i_bounce[1], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+        setPix(300 + i_hum_forBounce[2] - i_bounce[2], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+        setPix(300 + i_hum_forBounce[3] - i_bounce[3], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+      }
+      if(!(i_bounce[i] <= 1))
+      { 
+        setPix(299 - i_hum_forBounce[1] + i_bounce[1] - 1, leds, 0, 0, 0);
+        setPix(299 - i_hum_forBounce[2] + i_bounce[2] - 1, leds, 0, 0, 0);
+        setPix(300 + i_hum_forBounce[3] - i_bounce[3] + 1, leds, 0, 0, 0);
+        setPix(300 + i_hum_forBounce[4] - i_bounce[4] + 1, leds, 0, 0, 0);
+      }
+      flag_bounce[i] = true;
+      eTime_bounce[i] = 0;
+
+      duration_bounce[i] = duration_bounce[i] + duration_speed_bounce[i];
+      duration_speed_bounce[i] = duration_speed_bounce[i] * 2;
+      i_bounce[i]++;
+      for(int i_array_bounce = 0; i_array_bounce < 3; i_array_bounce++)
+      {
+        color_drops_forBounce[i_array_bounce] = color_drops_forBounce[i_array_bounce] * 0.75;
+      }
+
+    }
+    else if( eTime_bounce[i] >= duration_bounce[i] && i_bounce[i] == 9)
+    {
+      for(int j = -1; j < 2 ; j++)
+      {
+        setPix( j + 299 - i_hum_forBounce[1] + i_bounce[1] - 1, leds, 0, 0, 0);
+      }
+      for(int j = -1; j < 2 ; j++)
+      {
+        setPix(j + 299 - i_hum_forBounce[2] + i_bounce[2] - 1, leds, 0, 0, 0);
+      }
+      for(int j = -1; j < 2 ; j++)
+      {
+        setPix(j + 300 + i_hum_forBounce[3] - i_bounce[3] + 1, leds, 0, 0, 0);
+      }
+      for(int j = -1; j < 2 ; j++)
+      {
+        setPix(j + 300 + i_hum_forBounce[4] - i_bounce[4] + 1, leds, 0, 0, 0);
+      }
+      flag_initBounce[i] = false;
+      i_bounce[i] = 10000;
+    }else if(!(flag_initBounce[i]))
+    {
+      Serial.println("初期化！！！！");
+      i_drops[i] = 0;
+      eTime_drops[i] = 0;
+      duration_dropsGravity[i] = 0.0;
+      flag_drops[i] = true;
+      flag_drops_start[i] = true;
+      n[i] = 1;
+      i_hum_forBounce[i] = 0;
+      i_bounce[i] = 0;
+      flag_bounce[i] = true;
+      flag_initBounce[i] = true;
+      flag_bounce_forDrops[i] = true;
+      flag_i_hum_forBounce[i] = true;
+      duration_bounce[i] = 0;
+      duration_speed_bounce[i] = 0.1;
     }
   }
 }
