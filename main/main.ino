@@ -138,9 +138,9 @@ void led(int oclock, float durationMin)
     {
       envVls = get_http();
       temp = get_envData(envVls, 2, "temp");
-      contain(temp, 0, -10);
+      constrain(temp, 0, -10);
       hum = get_envData(envVls, 2, "hum");
-      contain(hum, 35, 60);
+      constrain(hum, 35, 60);
       air_press = get_envData(envVls, 2, "air_press");
       for(int sep_i = 0; sep_i <= sizeof(env_sep); sep_i++)
       {
