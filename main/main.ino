@@ -260,8 +260,8 @@ bool flag_i_hum_forBounce[4] = {true, true, true, true};
 int color_drops_forBounce[3];
 
 
-    int eTime_drops[4];
-    int eTime_dropsSpeed[4];
+int eTime_drops[4];
+int eTime_dropsSpeed[4];
 
 void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3], int i_hum)
 {
@@ -290,17 +290,25 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
         }
         if(flag_bounce_forDrops[i])
         {
-          setPix(299 - i_drops[0] - i_temp_forDrops[0], leds, color[0], color[1], color[2]);
-          setPix(299 - i_drops[1] - i_temp_forDrops[1], leds, color[0], color[1], color[2]);
-          setPix(300 + i_drops[2] + i_temp_forDrops[2], leds, color[0], color[1], color[2]);
-          setPix(300 + i_drops[3] + i_temp_forDrops[3], leds, color[0], color[1], color[2]);
+          if(i == 0 || i == 1)
+          {
+            setPix(299 - i_drops[i] - i_temp_forDrops[i], leds, color[0], color[1], color[2]);
+          }
+          else if(i == 2 || i == 3)
+          {
+            setPix(300 + i_drops[i] + i_temp_forDrops[i], leds, color[0], color[1], color[2]);
+          }
         }
         if(!( i_drops[i] == 0 )&& flag_bounce_forDrops[i])
         {
-          setPix(299 - i_drops[0] - i_temp_forDrops[0] + 1, leds, 0, 0, 0);
-          setPix(299 - i_drops[1] - i_temp_forDrops[1] + 1, leds, 0, 0, 0);
-          setPix(i_drops[2] + i_temp_forDrops[2] + 299, leds, 0, 0, 0);
-          setPix(i_drops[3] + i_temp_forDrops[3] + 299, leds, 0, 0, 0);
+          if(i == 0 || i == 1)
+          {
+            setPix(299 - i_drops[i] - i_temp_forDrops[i] + 1, leds, 0, 0, 0);
+          }
+          else if(i == 2 || i == 3)
+          {
+            setPix(i_drops[i] + i_temp_forDrops[i] + 299, leds, 0, 0, 0);
+          }
         }
         if(i_drops[i] + i_temp_forDrops[i] + 1 >= i_hum)
         {
