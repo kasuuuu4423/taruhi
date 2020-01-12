@@ -260,6 +260,8 @@ bool flag_i_hum_forBounce[4] = {true, true, true, true};
 int color_drops_forBounce[3];
 
 
+    int eTime_drops[4];
+    int eTime_dropsSpeed[4];
 
 void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3], int i_hum)
 {
@@ -274,9 +276,7 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
     {
       set_time(flag_dropsSpeed[i], time_dorpsSpeed[i]);
     }
-    int eTime_dropsSpeed[4];
     eTime_dropsSpeed[i] = millis() - time_dropsSpeed[i];
-    int eTime_drops[4];
     eTime_drops[i] = millis() - time_drops[i];
     if(eTime_drops[i] >= duration_drops[i])
     {
@@ -411,7 +411,6 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
     }
   }
 }
-
 
 void set_time(bool flag, unsigned long time_wanaSet)
 {
