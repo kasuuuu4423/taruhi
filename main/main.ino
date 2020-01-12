@@ -138,23 +138,9 @@ void led(int oclock, float durationMin)
     {
       envVls = get_http();
       temp = get_envData(envVls, 2, "temp");
-      if(temp > 0)
-      {
-        temp = 0;
-      }
-      else if(temp < -10)
-      {
-        temp = -10;
-      }
+      contain(temp, 0, -10);
       hum = get_envData(envVls, 2, "hum");
-      if(hum < 35)
-      {
-        hum = 35;  
-      }
-      else if(hum > 60)
-      {
-        hum = 60;  
-      }
+      contain(hum, 35, 60);
       air_press = get_envData(envVls, 2, "air_press");
       for(int sep_i = 0; sep_i <= sizeof(env_sep); sep_i++)
       {
@@ -255,7 +241,7 @@ bool flag_drops[4] = {true, true, true, true};
 bool flag_dropsSpeed[4] = {true, true, true, true};
 bool flag_drops_start[4] = {true, true, true, true};
 unsigned long time_drops[4];
-unsigned long time_dropsSpeed[4];
+unsigned int time_dropsSpeed[4];
 int duration_drops[4];
 int i_temp_forDrops[4];
 int i_drops[4];
@@ -265,7 +251,7 @@ int i_hum_forBounce[4];
 float duration_dropsGravity[4] = {0.0, 0.0, 0.0, 0.0};
 bool flag_bounce[4] = {true, true, true, true};
 bool flag_initBounce[4] = {true, true, true, true};
-unsigned long time_bounce[4];
+unsigned int time_bounce[4];
 bool flag_bounce_forDrops[4] = {true, true, true, true};
 bool flag_i_hum_forBounce[4] = {true, true, true, true};
 int color_drops_forBounce[3];
