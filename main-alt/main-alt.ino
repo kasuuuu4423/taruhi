@@ -41,7 +41,7 @@ unsigned long sttTime;
 int i_hum_forDrops;
 int i;
 int duration_bounce[4] = {0, 0, 0, 0};
-float duration_speed_bounce [4]= {0.1, 0.1, 0.1, 0.1};
+float duration_speed_bounce [4]= {0.01, 0.01, 0.01, 0.01};
 int bounce_color[8][3];
 
 void setup()
@@ -211,7 +211,7 @@ void led(int oclock)
   for(i = 0; i < 4; i++)
   {
     drops(1000, 10000, 0, color_drops);
-    bounce( color_drops );
+    bounce(color_drops);
   }
   
   //drops(1000, 2000, 10, color_drops, i_hum_forDrops, 3);
@@ -450,7 +450,7 @@ void bounce( int color[3] )
       time_bounce[i] = millis();
     }
     eTime_bounce[i] = millis() - time_bounce[i];
-    if( eTime_bounce[i] >= 50 )
+    if( eTime_bounce[i] >= duration_bounce[i] )
     {
       if( i_forBounce[i] <= 8 )
       {
@@ -490,7 +490,10 @@ void bounce( int color[3] )
             setPix(i_drops_forBounce[i] - i_forBounce[i], leds, 0, 0, 0);
           }
         }
-
+        flag_bounce[i] = true;
+        eTime_bounce[i] = 0;
+        duration_bounce[i] = duration_bounce[i] + duration_speed_bounce[i];
+        duration_speed_bounce[i] = duration_speed_bounce[i];
         i_forBounce[i]++;
       } 
       else
@@ -498,6 +501,8 @@ void bounce( int color[3] )
         flag_drops_forBounce[i] = false;
         Serial.println("抜け出した！！");
         i_forBounce[i] = 0;
+        duration_bounce[i] = 0;
+        duration_bounce[i] = 0.01;
       }
     }
   }
