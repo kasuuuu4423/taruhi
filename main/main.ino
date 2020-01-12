@@ -13,8 +13,8 @@
 #define PIN 0
 #define Oclock 15
 
-const char* ssid = "くさか";
-const char* pass = "aaaabbbb";
+const char* ssid = "SIAF-FREE-WiFi";
+const char* pass = "siafsiaf";
 float durationMin = 3;
 //0=>red, 1=>green, 2=>blue
 int color_temp[3] = {0, 149, 237};
