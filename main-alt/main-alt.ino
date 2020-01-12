@@ -367,18 +367,26 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
           //setPix(300 + i_drops[3] + i_temp_forDrops, leds, color[0], color[1], color[2]);
           // setPix(i_drops[i] + i_temp_forDrops, leds, color[0], color[1], color[2]);
           Serial.println(i_drops[0] + i_temp_forDrops);
-        }
-        if( !i_drops[i] == 0 )
-        {
+          }
+          if( ( i == 2 || i == 3 ) && ( 300 <= 300 + i_drops[i] + i_temp_forDrops ) && ( 300 + i_drops[i] + i_temp_forDrops <= 449 ) )
+          {
+            setPix(300 + i_drops[i] + i_temp_forDrops, leds, color[0], color[1], color[2]);
+          }
+
+          if( !i_drops[i] == 0 )
+          {
+            if( ( i == 0 || i == 1 ) && ( 150 <= 299 - i_drops[0] - i_temp_forDrops + 1 ) && ( 299 - i_drops[0] - i_temp_forDrops + 1 <= 299 ) )
+            {
+              setPix(299 - i_drops[i] - i_temp_forDrops + 1, leds, 0, 0, 0);
           //setPix(299 - i_drops[0] - i_temp_forDrops + 1, leds, 0, 0, 0);
           //setPix(299 - i_drops[1] - i_temp_forDrops + 1, leds, 0, 0, 0);
           //setPix(i_drops[2] + i_temp_forDrops + 299, leds, 0, 0, 0);
           //setPix(i_drops[3] + i_temp_forDrops + 299, leds, 0, 0, 0);
-
-          setPix(i_drops[0] + i_temp_forDrops - 1 , leds, 0, 0, 0);
-        }
-        if( i_drops[i] > 148 - i_hum - i_temp_forDrops)
-        {
+            }
+            if( ( i == 0 || i == 1 ) && ( 150 <= 299 - i_drops[0] - i_temp_forDrops + 1 ) && ( 299 - i_drops[0] - i_temp_forDrops + 1 <= 299 ) )
+          }
+          if( i_drops[i] > 148 - i_hum - i_temp_forDrops)
+          {
           // Serial.print("i_drops");
           // Serial.println(i_drops[i]);
           // Serial.print("i_hum");
@@ -391,7 +399,7 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
           n[i] = 0;
           flag_drops_start[i] = true;
 
-        }
+          }
         
           // if(duration_dropsSpeed - duration_dropsGravity[i] > 0)
           // {
@@ -402,6 +410,7 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
 
           // i_drops[i]++;
           // Serial.println(i_drops[i]);
+        }
       }
     }
   }
