@@ -274,7 +274,7 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
     }
     if(flag_dropsSpeed[i])
     {
-      set_time(flag_dropsSpeed[i], time_dorpsSpeed[i]);
+      set_time(flag_dropsSpeed[i], time_dropsSpeed[i]);
     }
     eTime_dropsSpeed[i] = millis() - time_dropsSpeed[i];
     eTime_drops[i] = millis() - time_drops[i];
