@@ -235,6 +235,15 @@ void hum_bar(int length_hum, int color[3])
   // }
 }
 
+
+
+
+void set_time(bool flag, unsigned long time)
+{
+  time = millis();
+  flag = false;
+}
+
 bool flag_drops[4] = {true, true, true, true};
 bool flag_dropsSpeed[4] = {true, true, true, true};
 bool flag_drops_start[4] = {true, true, true, true};
@@ -406,11 +415,4 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
       }
     }
   }
-}
-
-
-void set_time(bool flag, unsigned long time)
-{
-  time = millis();
-  flag = false;
 }
