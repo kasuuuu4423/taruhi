@@ -210,13 +210,13 @@ void temp_bar(int length_temp, int color[3])
   for(int i_temp_0 = 0; i_temp_0 <= length_temp; i_temp_0++)
   {
     setPix(i_temp_0, leds, color[0], color[1], color[2]);
-//    setPix(i_temp_0 + 300, leds, color[0], color[1], color[2]);
-//   }
-//  for(int i_temp_1 = 299; i_temp_1 >= 299 - length_temp; i_temp_1--)
-//  {
-//    setPix(i_temp_1, leds, color[0], color[1], color[2]);
-//    setPix(i_temp_1 + 300, leds, color[0], color[1], color[2]);
-//  }
+    setPix(i_temp_0 + 300, leds, color[0], color[1], color[2]);
+  }
+ for(int i_temp_1 = 299; i_temp_1 >= 299 - length_temp; i_temp_1--)
+ {
+   setPix(i_temp_1, leds, color[0], color[1], color[2]);
+   setPix(i_temp_1 + 300, leds, color[0], color[1], color[2]);
+ }
 }
 
 void hum_bar(int length_hum, int color[3])
@@ -225,14 +225,14 @@ void hum_bar(int length_hum, int color[3])
   {
     i_hum_forDrops = i_hum_0;
     setPix(i_hum_0, leds, color[0], color[1], color[2]);
-  //   setPix(i_hum_0 + 300, leds, color[0], color[1], color[2]);
+     setPix(i_hum_0 + 300, leds, color[0], color[1], color[2]);
    }
 
-  // for(int i_hum_1 = 150; i_hum_1 <= 150 + length_hum; i_hum_1++)
-  // {
-  //   setPix(i_hum_1, leds, color[0], color[1], color[2]);
-  //   setPix(i_hum_1 + 300, leds, color[0], color[1], color[2]);
-  // }
+   for(int i_hum_1 = 150; i_hum_1 <= 150 + length_hum; i_hum_1++)
+  {
+    setPix(i_hum_1, leds, color[0], color[1], color[2]);
+    setPix(i_hum_1 + 300, leds, color[0], color[1], color[2]);
+  }
 }
 
 
