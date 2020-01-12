@@ -143,15 +143,9 @@ void led(int oclock)
     {
       envVls = get_http();
       temp = get_envData(envVls, 2, "temp");
-      if(temp > 0)
-      {
-        temp = 0;
-      }
-      else if(temp < -10)
-      {
-        temp = -10;
-      }
+      constrain(temp, 0, -10);
       hum = get_envData(envVls, 2, "hum");
+<<<<<<< HEAD
       if(hum < 35)
       {
         hum = 35;
@@ -176,6 +170,54 @@ void led(int oclock)
       Serial.println(delay_hum);
     }
     flag_getHttp = false;
+=======
+      constrain(hum, 35, 60);
+      air_press = get_envData(envVls, 2, "air_press");
+      for(int sep_i = 0; sep_i <= sizeof(env_sep); sep_i++)
+      {
+        switch (sep_i)
+        {
+        case 0:
+          env_sep[sep_i] = temp * -10 / (durationMin * 60);
+          break;
+        case 1:
+          env_sep[sep_i] = (hum - 35) * 2 / (durationMin * 60);
+          break;
+        }
+      }
+      flag_getHttp = false;
+    }
+    if(flag_mills)
+    {
+      set_time(flag_mills, sttTime);
+    }
+    int eTime_led = millis() - sttTime;
+    if(eTime_led > 1000)
+    {
+      for(int length_i = 0; length_i < 2; length_i++)
+      {
+        switch(length_i)
+        {
+          case 0:
+            if(env_length[0] / 10 <= temp * -1)
+            {
+              env_length[0] += env_sep[0];
+            }
+            break;
+          case 1:
+            if(env_length[1] <= env_sep[1] * 60 * durationMin)
+            {
+              env_length[length_i] += env_sep[length_i];
+            }
+            break;
+        }
+      }
+      flag_mills = true;
+    }
+    temp_bar((int)env_length[0], color_temp);
+    hum_bar((int)env_length[1], color_hum);
+    drops(1000, 10000, 10, color_drops, i_hum_forDrops);
+>>>>>>> a5f97a43335b868cebcab701d23901646c80d77a
   }
     // if(flag_mills)
     // {
@@ -273,12 +315,21 @@ void hum_bar(int length_hum, int delay_hum, int color[3])
 {
   if(flag_hum == true)
   {
+<<<<<<< HEAD
     i_forHum = 0;
     flag_hum = false;
     t_hum = millis();
   }
   int e_time_hum = millis() - t_hum;
   if( e_time_hum >= delay_hum && i_hum <= length_hum)
+=======
+    i_hum_forDrops = i_hum_0;
+    setPix(i_hum_0, leds, color[0], color[1], color[2]);
+     setPix(i_hum_0 + 300, leds, color[0], color[1], color[2]);
+   }
+
+   for(int i_hum_1 = 150; i_hum_1 <= 150 + length_hum; i_hum_1++)
+>>>>>>> a5f97a43335b868cebcab701d23901646c80d77a
   {
     i_hum++;
     e_time_hum = 0;
@@ -298,21 +349,26 @@ void hum_bar(int length_hum, int delay_hum, int color[3])
   }
 }
 
+
+
+
+
 bool flag_drops[4] = {true, true, true, true};
 bool flag_dropsSpeed[4] = {true, true, true, true};
 bool flag_drops_start[4] = {true, true, true, true};
 unsigned long time_drops[4];
-unsigned long time_dropsSpeed[4];
+unsigned int time_dropsSpeed[4];
 int duration_drops[4];
 int i_temp_forDrops;
 int i_drops[4];
+int eTime_bounce[4];
 int n[4] = {1, 1, 1, 1};
 int i_bounce[4] = {0, 0, 0, 0};
 int i_hum_forBounce[4];
 float duration_dropsGravity[4] = {0.0, 0.0, 0.0, 0.0};
 bool flag_bounce[4] = {true, true, true, true};
 bool flag_initBounce[4] = {true, true, true, true};
-unsigned long time_bounce[4];
+unsigned int time_bounce[4];
 bool flag_bounce_forDrops[4] = {true, true, true, true};
 bool flag_i_hum_forBounce[4] = {true, true, true, true};
 int color_drops_forBounce[3];
@@ -321,20 +377,24 @@ int eTime_dropsSpeed[4];
 int eTime_drops[4];
 
 
+int eTime_drops[4];
+int eTime_dropsSpeed[4];
 
+<<<<<<< HEAD
 void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3])
+=======
+void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int color[3], int i_hum)
+>>>>>>> a5f97a43335b868cebcab701d23901646c80d77a
 {
   i = 0;
     if(flag_drops[i])
     {
-      time_drops[i] = millis();
+      set_time(flag_drops[i], time_drops[i]);
       duration_drops[i] = random(minDuration, maxDuration);
-      flag_drops[i] = false;
     }
     if(flag_dropsSpeed[i])
     {
-      time_dropsSpeed[i] = millis();
-      flag_dropsSpeed[i] = false;
+      set_time(flag_dropsSpeed[i], time_dropsSpeed[i]);
     }
     eTime_dropsSpeed[i] = millis() - time_dropsSpeed[i];
     eTime_drops[i] = millis() - time_drops[i];
@@ -354,26 +414,140 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
         }
         else 
         {
+<<<<<<< HEAD
           i_drops[i]++;
           n[i]++;
+=======
+          if(i == 0 || i == 1)
+          {
+            setPix(299 - i_drops[i] - i_temp_forDrops[i], leds, color[0], color[1], color[2]);
+          }
+          else if(i == 2 || i == 3)
+          {
+            setPix(300 + i_drops[i] + i_temp_forDrops[i], leds, color[0], color[1], color[2]);
+          }
+>>>>>>> a5f97a43335b868cebcab701d23901646c80d77a
         }
         if(!flag_drops_start[i])
         {
+<<<<<<< HEAD
           //setPix(299 - i_drops[0] - i_temp_forDrops, leds, color[0], color[1], color[2]);
           //setPix(299 - i_drops[1] - i_temp_forDrops, leds, color[0], color[1], color[2]);
           //setPix(300 + i_drops[2] + i_temp_forDrops, leds, color[0], color[1], color[2]);
           //setPix(300 + i_drops[3] + i_temp_forDrops, leds, color[0], color[1], color[2]);
 
           setPix(i_drops[0] + i_temp_forDrops, leds, color[0], color[1], color[2]);
+=======
+          if(i == 0 || i == 1)
+          {
+            setPix(299 - i_drops[i] - i_temp_forDrops[i] + 1, leds, 0, 0, 0);
+          }
+          else if(i == 2 || i == 3)
+          {
+            setPix(i_drops[i] + i_temp_forDrops[i] + 299, leds, 0, 0, 0);
+          }
+>>>>>>> a5f97a43335b868cebcab701d23901646c80d77a
         }
         if( !i_drops[i] == 0 )
         {
+<<<<<<< HEAD
           //setPix(299 - i_drops[0] - i_temp_forDrops + 1, leds, 0, 0, 0);
           //setPix(299 - i_drops[1] - i_temp_forDrops + 1, leds, 0, 0, 0);
           //setPix(i_drops[2] + i_temp_forDrops + 299, leds, 0, 0, 0);
           //setPix(i_drops[3] + i_temp_forDrops + 299, leds, 0, 0, 0);
 
           setPix(i_drops[0] + i_temp_forDrops - 1 , leds, 0, 0, 0);
+=======
+          //バウンス用に色と湿度バーの位置を保存
+          if( flag_i_hum_forBounce[i] )
+          {
+            flag_i_hum_forBounce[i] = false;
+            for(int i_array_bounce = 0; i_array_bounce < 3; i_array_bounce++)
+            {
+              color_drops_forBounce[i_array_bounce] = color_drops[i_array_bounce];
+            }
+            i_hum_forBounce[i] = i_hum;
+          }
+          if(flag_bounce[i])
+          {
+            set_time(flag_bounce[i], time_bounce[i]);
+          }
+          eTime_bounce[i] = millis() - time_bounce[i];
+          if( eTime_bounce[i] >= duration_bounce[i] && i_bounce[i] <= 8)
+          {
+            if(i_bounce[i] == 0)
+            {
+              setPix(i_drops[i] + i_temp_forDrops[i], leds, 0, 0, 0);
+            }
+            if(!i_bounce[i] == 0)
+            {
+              if(i == 0 || i == 1)
+              {
+                setPix(299 - i_hum_forBounce[i] + i_bounce[i], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+              }
+              else if(i == 2 || i == 3)
+              {
+                setPix(300 + i_hum_forBounce[i] - i_bounce[i], leds, color_drops_forBounce[0], color_drops_forBounce[1], color_drops_forBounce[2]);
+              }
+            }
+            if(!(i_bounce[i] <= 1))
+            {
+              if(i == 0 || i == 1)
+              {
+                setPix(299 - i_hum_forBounce[i] + i_bounce[i], leds, 0, 0, 0);
+              }
+              else if(i == 2 || i == 3)
+              {
+                setPix(300 + i_hum_forBounce[i] - i_bounce[i], leds,0, 0, 0);
+              }
+            }
+            flag_bounce[i] = true;
+            eTime_bounce[i] = 0;
+            duration_bounce[i] = duration_bounce[i] + duration_speed_bounce[i];
+            duration_speed_bounce[i] = duration_speed_bounce[i] * 2;
+            i_bounce[i]++;
+            for(int i_array_bounce = 0; i_array_bounce < 3; i_array_bounce++)
+            {
+              color_drops_forBounce[i_array_bounce] = color_drops_forBounce[i_array_bounce] * 0.75;
+            }
+          }
+          else if( eTime_bounce[i] >= duration_bounce[i] && i_bounce[i] >= 9)
+          {
+
+            if(i == 0 || i == 1)
+            {
+              for(int j = -1; j < 2 ; j++)
+              {
+                setPix( j + 299 - i_hum_forBounce[i] + i_bounce[i] - 1, leds, 0, 0, 0);
+              }
+            }
+            else if(i == 2 || i == 3)
+            {
+              for(int j = -1; j < 2 ; j++)
+              {
+                setPix( j + 300 + i_hum_forBounce[i] - i_bounce[i] + 1, leds, 0, 0, 0);
+              }
+            }
+            flag_initBounce[i] = false;
+            i_bounce[i] = 10000;
+          }else if(!(flag_initBounce[i]))
+          {
+            i_drops[i] = 0;
+            eTime_drops[i] = 0;
+            duration_dropsGravity[i] = 0.0;
+            flag_drops[i] = true;
+            flag_drops_start[i] = true;
+            n[i] = 1;
+            i_hum_forBounce[i] = 0;
+            i_bounce[i] = 0;
+            flag_bounce[i] = true;
+            flag_initBounce[i] = true;
+            flag_bounce_forDrops[i] = true;
+            flag_i_hum_forBounce[i] = true;
+            duration_bounce[i] = 0;
+            duration_speed_bounce[i] = 0.1;
+          }
+>>>>>>> a5f97a43335b868cebcab701d23901646c80d77a
         }
         if( i_drops[i] > 148 - i_hum - i_temp_forDrops)
         {
@@ -497,4 +671,10 @@ void bounce()
       duration_speed_bounce[i] = 0.1;
     }
   }
+}
+
+void set_time(bool flag, unsigned long time_wanaSet)
+{
+  time_wanaSet = millis();
+  flag = false;
 }
