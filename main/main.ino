@@ -186,7 +186,7 @@ void led(int oclock, float durationMin)
     }
     temp_bar((int)env_length[0], color_temp);
     hum_bar((int)env_length[1], color_hum);
-    drops(1000, 10000, 10, color_drops, i_hum_forDrops, 2);
+    drops(1000, 10000, 10, color_drops, i_hum_forDrops);
     //drops(1000, 2000, 10, color_drops, i_hum_forDrops, 3);
   }
 }
