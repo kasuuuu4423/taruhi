@@ -383,7 +383,10 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
           //setPix(i_drops[2] + i_temp_forDrops + 299, leds, 0, 0, 0);
           //setPix(i_drops[3] + i_temp_forDrops + 299, leds, 0, 0, 0);
             }
-            if( ( i == 0 || i == 1 ) && ( 150 <= 299 - i_drops[0] - i_temp_forDrops + 1 ) && ( 299 - i_drops[0] - i_temp_forDrops + 1 <= 299 ) )
+            if( ( i == 2 || i == 3 ) && ( 150 <= 299 - i_drops[0] - i_temp_forDrops + 1 ) && ( 299 - i_drops[0] - i_temp_forDrops + 1 <= 299 ) )
+            {
+              setPix(i_drops[i] + i_temp_forDrops + 299, leds, 0, 0, 0);
+            }
           }
           if( i_drops[i] > 148 - i_hum - i_temp_forDrops)
           {
