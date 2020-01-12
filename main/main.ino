@@ -272,7 +272,7 @@ void drops(int minDuration, int maxDuration, float duration_dropsSpeed, int colo
   {
     if(flag_drops[i])
     {
-      set_time(flag_drops[i], time_drops[i])
+      set_time(flag_drops[i], time_drops[i]);
       duration_drops[i] = random(minDuration, maxDuration);
     }
     if(flag_dropsSpeed[i])
