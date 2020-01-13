@@ -12,7 +12,7 @@
 #define NUM_LED 600
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 20
+#define Oclock 19
 const char* ssid = "くさか";
 const char* pass = "aaaabbbb";
 int color_temp[3] = {0, 149, 237};
@@ -342,25 +342,25 @@ void drops(int minDuration, int maxDuration, int color[3])
       {
         if( ( i_forLoop == 0 || i_forLoop == 1 ) && ( 150 <= 299 - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop] ) && ( 299 - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop] <= 299 ) )
         {
-          setPix(299 - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop], leds, color[0], color[1], color[2]);
+          setPix(299 + n - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop], leds, color[0], color[1], color[2]);
         }
         else if( ( i_forLoop == 2 || i_forLoop == 3 ) && ( 300 <= 300 + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] ) && ( 300 + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] <= 449 ) )
         {
-          setPix(300 + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop], leds, color[0], color[1], color[2]);
+          setPix(300 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop], leds, color[0], color[1], color[2]);
         }
 
         if( !i_drops[i_forLoop] == 0 )
         {
           if( ( i_forLoop == 0 || i_forLoop == 1 ) && ( 150 <= 299 - i_drops[0] - i_temp_forDrops[i_forLoop] + 1 ) && ( 299 - i_drops[0] - i_temp_forDrops[i_forLoop] + 1 <= 299 ) )
           {
-            setPix(299 - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop] + 1, leds, 0, 0, 0);
+            setPix(299 + n - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop] + 1, leds, 0, 0, 0);
           }
           else if( ( i_forLoop == 2 || i_forLoop == 3 ) && ( 150 <= 299 - i_drops[0] - i_temp_forDrops[i_forLoop] + 1 ) && ( 299 - i_drops[0] - i_temp_forDrops[i_forLoop] + 1 <= 299 ) )
           {
-            setPix(i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] + 299, leds, 0, 0, 0);
+            setPix(300 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] - 1, leds, 0, 0, 0);
           }
         }
-        if( i_drops[i_forLoop] > 148 - i_hum - i_temp_forDrops[i_forLoop] + n )
+        if( i_drops[i_forLoop] - n > 148 - i_hum - i_temp_forDrops[i_forLoop] )
         {
           flag_drops_forBounce[i_forLoop] = true;
           flag_drops_start[i_forLoop] = false;
