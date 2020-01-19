@@ -12,10 +12,10 @@
 #define NUM_LED 600
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 19
+#define Oclock 23
 #define Minute 58
-const char* ssid = "くさか";
-const char* pass = "aaaabbbb";
+const char* ssid = "kouheki";
+const char* pass = "kouheki0000";
 int color_temp[3] = {0, 149, 237};
 int color_hum[3] = {0, 191, 255};
 int color_drops[3] = {0, 191, 255};
@@ -85,6 +85,7 @@ void setup()
 {
   Serial.begin(115200);
   delay(100);
+  delay(100);
   wifi_connect(ssid, pass);
   configTime(JST, 0, "ntp.nict.jp", "ntp.jst.mfeed.ad.jp");
   FastLED.addLeds<WS2812B, PIN, GRB>(leds, NUM_LED);
@@ -120,12 +121,46 @@ void setup()
 }
 
 //===================loop=====================//
-
+bool case_forWifi = true;
+bool flag_forLoop = true;
 void loop()
 {
-  led();
-  FastLED.show();
-  delay(5);
+  if(WiFi.status() != WL_CONNECTED && flag_forLoop)
+  {
+    if(case_forWifi)
+    {
+      case_forWifi = false;
+      setPix(0, leds, 255, 0, 0);
+      setPix(299, leds, 255, 0, 0);
+      setPix(300, leds, 255, 0, 0);
+      setPix(599, leds, 255, 0, 0);
+    }
+    else
+    {
+      case_forWifi = true;
+      setPix(0, leds, 0, 0, 0);
+      setPix(299, leds, 0, 0, 0);
+      setPix(300, leds, 0, 0, 0);
+      setPix(599, leds, 0, 0, 0);
+    }
+    delay(500);
+    FastLED.show();
+  }
+  else if(flag_forLoop)
+  {
+    for(int i = 0; i < 600 ; i++)
+    {
+      setPix( i, leds, 0, 0, 0 );
+    }
+    flag_forLoop = false;
+  }
+
+  if(!flag_forLoop)
+  {
+    led();
+    FastLED.show();
+    delay(5);
+  }
 }
 
 //===================wifi=====================//
@@ -133,13 +168,6 @@ void loop()
 void wifi_connect(const char* ssid, const char* password)
 {
   WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-  
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
