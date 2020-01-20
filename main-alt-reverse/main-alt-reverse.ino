@@ -12,7 +12,7 @@
 #define NUM_LED 600
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 20
+#define Oclock 18
 #define Minute 58
 const char* ssid = "kouheki";
 const char* pass = "kouheki0000";
