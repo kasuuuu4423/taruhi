@@ -14,8 +14,8 @@
 #define PIN 0
 #define Oclock 16
 #define Minute 58
-const char* ssid = "kouheki";
-const char* pass = "kouheki0000";
+const char* ssid = "くさか";
+const char* pass = "aaaabbbb";
 int color_temp[3] = {0, 149, 237};
 int color_hum[3] = {0, 191, 255};
 int color_drops[3] = {0, 191, 255};
@@ -39,8 +39,8 @@ int delay_hum;
 bool flag_getHttp = true;
 int i_forLoop;
 bool flag_get_min = true;
-float color_temp_magnification_for14[3];
-float color_temp_magnification_for23[3];
+float color_temp_magnification_for13[3];
+float color_temp_magnification_for2[3];
 float color_T_for13[3];
 float color_T_for2[3];
 
@@ -261,8 +261,8 @@ void led()
       Serial.println(delay_temp);
       for(int i = 0; i < 3; i++)
       {
-        color_temp_magnification_for14[i] = color_temp[i] / 100;
-        color_temp_magnification_for23[i] = color_temp[i] / 50;
+        color_temp_magnification_for13[i] = color_temp[i] / 100;
+        color_temp_magnification_for2[i] = color_temp[i] / 50;
       }
       Serial.print("湿度:           ");
       Serial.println(hum);
