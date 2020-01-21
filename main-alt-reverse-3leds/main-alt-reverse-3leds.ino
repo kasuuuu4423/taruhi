@@ -14,8 +14,8 @@
 #define PIN 0
 #define Oclock 16
 #define Minute 58
-const char* ssid = "くさか";
-const char* pass = "aaaabbbb";
+const char* ssid = "kouheki";
+const char* pass = "kouheki0000";
 int color_temp[3] = {0, 149, 237};
 int color_hum[3] = {0, 191, 255};
 int color_drops[3] = {0, 191, 255};
