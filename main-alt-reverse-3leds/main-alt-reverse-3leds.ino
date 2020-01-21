@@ -288,8 +288,8 @@ void led()
     }
     else if(!flag_getHttp)
     {
-      temp_bar(temp_int, 500, color_temp);
-      hum_bar(hum_int, 500, color_hum);
+      temp_bar(temp_int, delay_temp, color_temp);
+      hum_bar(hum_int, delay_hum, color_hum);
     }
   }
   if ( get_crntTime_min() == Minute && flag_get_min && flag_getHttp )
