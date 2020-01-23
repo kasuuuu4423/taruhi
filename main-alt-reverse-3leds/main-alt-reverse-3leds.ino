@@ -14,8 +14,8 @@
 #define PIN 0
 #define Oclock 17
 #define Minute 58
-const char* ssid = "kouheki";
-const char* pass = "kouheki0000";
+const char* ssid = "くさか";
+const char* pass = "aaaabbbb";
 int color_temp[3] = {0, 149, 237};
 int color_hum[3] = {0, 191, 255};
 int color_drops[3] = {0, 191, 255};
@@ -73,7 +73,7 @@ int eTime_drops[2];
 int i_drops_forBounce[2];
 int eTime_bounce[2];
 int duration_bounce[2] = {0, 0};
-float duration_speed_bounce [2]= {gravity_speed_first_forBounce, gravity_speed_first_forBounce};
+float duration_speed_bounce[2]= {gravity_speed_first_forBounce, gravity_speed_first_forBounce};
 int bounce_color[9][3];
 float i_dropsGravity[2];
 bool flag_bounce_once[2] = {true, true};
