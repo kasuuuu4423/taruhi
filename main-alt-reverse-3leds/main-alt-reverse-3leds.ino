@@ -12,13 +12,14 @@
 #define NUM_LED 450
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 17
+#define Oclock 22
 #define Minute 58
-const char* ssid = "くさか";
-const char* pass = "aaaabbbb";
-int color_temp[3] = {0, 191, 255};
-int color_hum[3] = {0, 149, 237};
-int color_drops[3] = {0, 149, 237};
+int placeData = 1;
+const char* ssid = "kouheki";
+const char* pass = "kouheki0000";
+int color_temp[3] = {65, 100, 220};
+int color_hum[3] = {0, 35, 50};
+int color_drops[3] = {0, 120, 200};
 int duration_drops_forRandom = 3000;
 float gravity_speed_first_forDrops = 10.0;
 float gravity_magnification_forDrops = 1.0;
@@ -244,9 +245,9 @@ void led()
     {
       n = 0;
       envVls = get_http();
-      temp = get_envData(envVls, 2, "temp");
+      temp = get_envData(envVls, placeData, "temp");
       temp = constrain(temp, -10, 0);
-      hum = get_envData(envVls, 2, "hum");
+      hum = get_envData(envVls, placeData, "hum");
       hum = constrain(hum, 35, 60);
       Serial.print("気温:           ");
       Serial.println(temp);
@@ -271,7 +272,7 @@ void led()
       delay_hum = 3600000 / hum_int;
       Serial.print("湿度のDURATION: ");
       Serial.println(delay_hum);
-      air_press = get_envData(envVls, 2, "air_press");
+      air_press = get_envData(envVls, placeData, "air_press");
       Serial.print("元の気圧:       "); 
       Serial.println(air_press);
       air_press = constrain(air_press, 990, 1020);
