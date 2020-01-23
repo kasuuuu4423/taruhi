@@ -16,9 +16,9 @@
 #define Minute 58
 const char* ssid = "くさか";
 const char* pass = "aaaabbbb";
-int color_temp[3] = {0, 149, 237};
-int color_hum[3] = {0, 191, 255};
-int color_drops[3] = {0, 191, 255};
+int color_temp[3] = {0, 191, 255};
+int color_hum[3] = {0, 149, 237};
+int color_drops[3] = {0, 149, 237};
 int duration_drops_forRandom = 3000;
 float gravity_speed_first_forDrops = 10.0;
 float gravity_magnification_forDrops = 1.0;
