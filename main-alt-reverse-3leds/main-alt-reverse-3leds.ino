@@ -12,7 +12,7 @@
 #define NUM_LED 450
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 22
+#define Oclock 17
 #define Minute 58
 int placeData = 1;
 const char* ssid = "kouheki";
