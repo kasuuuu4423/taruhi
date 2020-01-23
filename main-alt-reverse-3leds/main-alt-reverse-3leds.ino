@@ -356,7 +356,7 @@ void temp_bar(int length_temp, int delay_temp,  int color[3])
     }
     setPix(149 - i_forTemp, leds, min(color_temp[0], (int)color_T_for13[0]), min(color_temp[1], (int)color_T_for13[1]), min(color_temp[2], (int)color_T_for13[2]));
     setPix(150 + i_forTemp, leds, min(color_temp[0], (int)color_T_for2[0]), min(color_temp[1], (int)color_T_for2[1]), min(color_temp[2], (int)color_T_for2[2]));
-    setPix(449 - i_forTemp, leds, min(color_temp[0], (int)color_T_for2[0]), min(color_temp[1], (int)color_T_for2[1]), min(color_temp[2], (int)color_T_for2[2]));
+    setPix(449 - i_forTemp, leds, min(color_temp[0], (int)color_T_for13[0]), min(color_temp[1], (int)color_T_for13[1]), min(color_temp[2], (int)color_T_for13[2]));
     i_forTemp++;
   } 
   else
