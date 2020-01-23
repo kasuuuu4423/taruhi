@@ -12,7 +12,7 @@
 #define NUM_LED 450
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 16
+#define Oclock 17
 #define Minute 58
 const char* ssid = "kouheki";
 const char* pass = "kouheki0000";
@@ -54,30 +54,30 @@ int i_hum = 0;
 int t_hum = 0;
 int i_forHum;
 int duration_drops_min_max[2] = {duration_drops_forRandom, duration_drops_forRandom * 4};
-float gravity_forDrops[4] = {gravity_speed_first_forDrops, gravity_speed_first_forDrops, gravity_speed_first_forDrops, gravity_speed_first_forDrops};
-bool flag_drops[4] = {true, true, true, true};
-bool flag_dropsSpeed[4] = {true, true, true, true};
-bool flag_drops_once[4] = {true, true, true, true};
-bool flag_drops_start[4] = {true, true, true, true};
-unsigned long time_drops[4];
-unsigned long time_dropsSpeed[4];
-int duration_drops[4];
-int i_temp_forDrops[4];
-int i_drops[4] = {0, 0, 0, 0};
-int i_bounce[4] = {0, 0, 0, 0};
-bool flag_bounce[4] = {true, true, true, true};
-unsigned long time_bounce[4];
-bool flag_drops_forBounce[4] = {false, false, false, false};
-int eTime_dropsSpeed[4];
-int eTime_drops[4];
-int i_drops_forBounce[4];
-int eTime_bounce[4];
-int duration_bounce[4] = {0, 0, 0, 0};
-float duration_speed_bounce [4]= {gravity_speed_first_forBounce, gravity_speed_first_forBounce, gravity_speed_first_forBounce, gravity_speed_first_forBounce};
+float gravity_forDrops[2] = {gravity_speed_first_forDrops, gravity_speed_first_forDrops};
+bool flag_drops[2] = {true, true};
+bool flag_dropsSpeed[2] = {true, true};
+bool flag_drops_once[2] = {true, true};
+bool flag_drops_start[2] = {true, true};
+unsigned long time_drops[2];
+unsigned long time_dropsSpeed[2];
+int duration_drops[2];
+int i_temp_forDrops[2];
+int i_drops[2] = {0, 0};
+int i_bounce[2] = {0, 0};
+bool flag_bounce[2] = {true, true};
+unsigned long time_bounce[2];
+bool flag_drops_forBounce[2] = {false, false};
+int eTime_dropsSpeed[2];
+int eTime_drops[2];
+int i_drops_forBounce[2];
+int eTime_bounce[2];
+int duration_bounce[2] = {0, 0};
+float duration_speed_bounce [2]= {gravity_speed_first_forBounce, gravity_speed_first_forBounce};
 int bounce_color[9][3];
-float i_dropsGravity[4];
-bool flag_bounce_once[4] = {true, true, true, true};
-int i_hum_forBounce[4];
+float i_dropsGravity[2];
+bool flag_bounce_once[2] = {true, true};
+int i_hum_forBounce[2];
 
 //===================setup=====================//
 
@@ -316,7 +316,7 @@ void led()
     flag_get_min = true;
     Serial.println(get_crntTime_min());
   }
-  for(i_forLoop = 0; i_forLoop < 4; i_forLoop++)
+  for(i_forLoop = 0; i_forLoop < 2; i_forLoop++)
   {
     drops(duration_drops_min_max[0], duration_drops_min_max[1], color_drops);
     bounce();
@@ -435,47 +435,19 @@ void drops(int minDuration, int maxDuration, int color[3])
       {
         if(i_drops[i_forLoop] <= 148 - i_hum - i_temp_forDrops[i_forLoop] + 2 * n)
         {
-          if( ( i_forLoop == 0 || i_forLoop == 1 ) )
-          {
-            setPix(150 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop], leds, color[0], color[1], color[2]);
-          }
-          else if( ( i_forLoop == 2 || i_forLoop == 3 )  )
-          {
-            //setPix(449 + n - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop], leds, color[0], color[1], color[2]);
-          }
+          setPix(150 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop], leds, color[0], color[1], color[2]);
         }
         if( ( !(i_drops[i_forLoop] == 0) ) && i_drops[i_forLoop] <= 148 - i_hum - i_temp_forDrops[i_forLoop] + 2 * n)
         {
-          if( ( i_forLoop == 0 || i_forLoop == 1 )  )
-          {
-            setPix(150 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] - 1, leds, 0, 0, 0);
-          }
-          else if( ( i_forLoop == 2 || i_forLoop == 3 )  )
-          {
-            //setPix(449 + n - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop] + 1, leds, 0, 0, 0);
-          }
+          setPix(150 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] - 1, leds, 0, 0, 0);
         }
         if( ( !(i_drops[i_forLoop] <= 1) ) && i_drops[i_forLoop] <= 148 - i_hum - i_temp_forDrops[i_forLoop] + 2 * n)
         {
-          if( ( i_forLoop == 0 || i_forLoop == 1 )  )
-          { 
-            setPix(150 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] - 2, leds, 0, 0, 0);
-          }
-          else if( ( i_forLoop == 2 || i_forLoop == 3 )  )
-          {
-            //setPix(449 + n - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop] + 2, leds, 0, 0, 0);
-          }
+          setPix(150 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] - 2, leds, 0, 0, 0);
         }
         if( ( !(i_drops[i_forLoop] <= 2) ) && i_drops[i_forLoop] <= 148 - i_hum - i_temp_forDrops[i_forLoop] + 2 * n)
         {
-          if( ( i_forLoop == 0 || i_forLoop == 1 )  )
-          {
-            setPix(150 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] - 3, leds, 0, 0, 0);
-          }
-          else if( ( i_forLoop == 2 || i_forLoop == 3 )  )
-          {
-            //setPix(449 + n - i_drops[i_forLoop] - i_temp_forDrops[i_forLoop] + 3, leds, 0, 0, 0);
-          }
+          setPix(150 - n + i_drops[i_forLoop] + i_temp_forDrops[i_forLoop] - 3, leds, 0, 0, 0);
         }
         if( i_drops[i_forLoop] > 148 - i_hum - i_temp_forDrops[i_forLoop] + 2 * n )
         {
@@ -515,36 +487,15 @@ void bounce()
       {
         if( !(i_bounce[i_forLoop] == 0) )
         {
-          if( i_forLoop == 0 || i_forLoop == 1 )
-          {
-            setPix( 299 - i_hum_forBounce[i_forLoop] - i_bounce[i_forLoop] , leds, bounce_color[i_bounce[i_forLoop]][0], bounce_color[i_bounce[i_forLoop]][1], bounce_color[i_bounce[i_forLoop]][2]);
-          }
-          else if( i_forLoop == 2 || i_forLoop == 3 )
-          {
-            //setPix(300 + i_hum_forBounce[i_forLoop] + i_bounce[i_forLoop] , leds, bounce_color[i_bounce[i_forLoop]][0], bounce_color[i_bounce[i_forLoop]][1], bounce_color[i_bounce[i_forLoop]][2]);
-          }
+          setPix( 299 - i_hum_forBounce[i_forLoop] - i_bounce[i_forLoop] , leds, bounce_color[i_bounce[i_forLoop]][0], bounce_color[i_bounce[i_forLoop]][1], bounce_color[i_bounce[i_forLoop]][2]);
         }
         if( !(i_bounce[i_forLoop] <= 1) )
         {
-          if( i_forLoop == 0 || i_forLoop == 1 )
-          {
-            setPix(299 - i_hum_forBounce[i_forLoop] - i_bounce[i_forLoop] + 1 , leds, 0, 0, 0);
-          }
-          else if( i_forLoop == 2 || i_forLoop == 3 )
-          {
-            //setPix(300 + i_hum_forBounce[i_forLoop] + i_bounce[i_forLoop] - 1, leds, 0, 0, 0);
-          }
+          setPix(299 - i_hum_forBounce[i_forLoop] - i_bounce[i_forLoop] + 1 , leds, 0, 0, 0);
         }
         if( i_bounce[i_forLoop] == 9 )
         {
-          if( i_forLoop == 0 || i_forLoop == 1 )
-          {
-            setPix(299 - i_hum_forBounce[i_forLoop] - i_bounce[i_forLoop] , leds, 0, 0, 0);
-          }
-          else if( i_forLoop == 2 || i_forLoop == 3 )
-          {
-            //setPix(300 + i_hum_forBounce[i_forLoop] + i_bounce[i_forLoop], leds, 0, 0, 0);
-          }
+          setPix(299 - i_hum_forBounce[i_forLoop] - i_bounce[i_forLoop] , leds, 0, 0, 0);
         }
         flag_bounce[i_forLoop] = true;
         eTime_bounce[i_forLoop] = 0;
