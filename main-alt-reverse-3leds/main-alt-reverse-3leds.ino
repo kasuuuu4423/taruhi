@@ -12,11 +12,11 @@
 #define NUM_LED 450
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 13
+#define Oclock 17
 #define Minute 58
 int placeData = 1;
-const char* ssid = "SIAF-FREE-WiF";
-const char* pass = "siafsiaf";
+const char* ssid = "kouheki";
+const char* pass = "kouheki0000";
 int color_temp[3] = {65, 100, 220};
 int color_hum[3] = {0, 35, 50};
 int color_drops[3] = {0, 120, 200};
