@@ -12,11 +12,11 @@
 #define NUM_LED 450
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 17
+#define Oclock 13
 #define Minute 58
 int placeData = 1;
-const char* ssid = "kouheki";
-const char* pass = "kouheki0000";
+const char* ssid = "SIAF-FREE-WiF";
+const char* pass = "siafsiaf";
 int color_temp[3] = {65, 100, 220};
 int color_hum[3] = {0, 35, 50};
 int color_drops[3] = {0, 120, 200};
@@ -124,6 +124,7 @@ void setup()
 //===================loop=====================//
 bool case_forWifi = true;
 bool flag_forLoop = true;
+unsigned int count_disconnect = 0;
 void loop()
 {
   if(WiFi.status() != WL_CONNECTED && flag_forLoop)
@@ -131,19 +132,25 @@ void loop()
     if(case_forWifi)
     {
       case_forWifi = false;
-      setPix(0, leds, 255, 0, 0);
-      setPix(299, leds, 255, 0, 0);
-      setPix(300, leds, 255, 0, 0);
+      setPix(count_disconnect, leds, 255, 0, 0);
+      setPix(299 - count_disconnect, leds, 255, 0, 0);
+      setPix(300 + count_disconnect, leds, 255, 0, 0);
     }
     else
     {
       case_forWifi = true;
-      setPix(0, leds, 0, 0, 0);
-      setPix(299, leds, 0, 0, 0);
-      setPix(300, leds, 0, 0, 0);
+      setPix(count_disconnect, leds, 0, 0, 0);
+      setPix(299 - count_disconnect, leds, 0, 0, 0);
+      setPix(300 + count_disconnect, leds, 0, 0, 0);
     }
     delay(500);
     FastLED.show();
+    if(10 <= count_disconnect){
+      ESP.restart();
+    }
+    else{
+      count_disconnect++;
+    }
   }
   else if(flag_forLoop)
   {
@@ -151,6 +158,11 @@ void loop()
     {
       setPix( i, leds, 0, 0, 0 );
     }
+    
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
     flag_forLoop = false;
   }
 
@@ -167,10 +179,6 @@ void loop()
 void wifi_connect(const char* ssid, const char* password)
 {
   WiFi.begin(ssid, password);
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
 }
 
 //===================get_http=====================//
@@ -255,7 +263,12 @@ void led()
       temp_int = (int)temp;
       Serial.print("気温のLED数:    ");
       Serial.println(temp_int);
-      delay_temp = 3600000 / temp_int;
+      if(temp_int > 0){
+        delay_temp = 3600000 / temp_int;
+      }
+      else{
+        delay_temp = 0;
+      }
       Serial.print("気温のDURATION: ");
       Serial.println(delay_temp);
       for(int i = 0; i < 3; i++)
@@ -269,7 +282,12 @@ void led()
       hum_int = (int)hum;
       Serial.print("湿度のLED数:    ");
       Serial.println(hum_int);
-      delay_hum = 3600000 / hum_int;
+      if(hum_int > 0){
+        delay_hum = 3600000 / hum_int;
+      }
+      else{
+        delay_hum = 0;
+      }
       Serial.print("湿度のDURATION: ");
       Serial.println(delay_hum);
       air_press = get_envData(envVls, placeData, "air_press");
