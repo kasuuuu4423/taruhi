@@ -12,9 +12,9 @@
 #define NUM_LED 450
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 17
+#define Oclock 22
 #define Minute 58
-int placeData = 1;
+int placeData = 2;
 const char* ssid = "kouheki";
 const char* pass = "kouheki0000";
 int color_temp[3] = {65, 100, 220};
@@ -127,6 +127,7 @@ bool flag_forLoop = true;
 unsigned int count_disconnect = 0;
 void loop()
 {
+  Serial.println(delay_hum);
   if(WiFi.status() != WL_CONNECTED && flag_forLoop)
   {
     if(case_forWifi)
@@ -247,47 +248,52 @@ int get_crntTime_min()
 
 void led()
 {
-  if(get_crntTime_hour() == Oclock )
+  if( get_crntTime_hour() == Oclock )
   {
-    if(flag_getHttp)
+    if( flag_getHttp )
     {
       n = 0;
       envVls = get_http();
       temp = get_envData(envVls, placeData, "temp");
+      Serial.println(temp);
       temp = constrain(temp, -10, 0);
       hum = get_envData(envVls, placeData, "hum");
-      hum = constrain(hum, 35, 60);
+      Serial.println(hum);
+      hum = constrain(hum, 30, 80);
       Serial.print("気温:           ");
       Serial.println(temp);
       temp = temp * -10 + 0.5;
       temp_int = (int)temp;
       Serial.print("気温のLED数:    ");
       Serial.println(temp_int);
-      if(temp_int > 0){
+      if( temp_int > 0){
         delay_temp = 3600000 / temp_int;
       }
       else{
         delay_temp = 0;
       }
       Serial.print("気温のDURATION: ");
-      Serial.println(delay_temp);
-      for(int i = 0; i < 3; i++)
+      Serial.println( delay_temp );
+      for( int i = 0; i < 3; i++ )
       {
         color_temp_magnification_for13[i] = color_temp[i] / 100;
         color_temp_magnification_for2[i] = color_temp[i] / 50;
       }
       Serial.print("湿度:           ");
       Serial.println(hum);
-      hum = ( hum - 34.5 ) * 2;
+      hum = hum - 29.5;
       hum_int = (int)hum;
       Serial.print("湿度のLED数:    ");
       Serial.println(hum_int);
-      if(hum_int > 0){
+      if(hum_int > 0)
+      {
         delay_hum = 3600000 / hum_int;
       }
-      else{
+      else
+      {
         delay_hum = 0;
       }
+
       Serial.print("湿度のDURATION: ");
       Serial.println(delay_hum);
       air_press = get_envData(envVls, placeData, "air_press");
