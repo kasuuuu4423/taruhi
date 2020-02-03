@@ -12,7 +12,7 @@
 #define NUM_LED 450
 #define BRIGHTNESS 64
 #define PIN 0
-#define Oclock 22
+#define Oclock 20
 #define Minute 58
 int placeData = 2;
 const char* ssid = "kouheki";
@@ -127,7 +127,6 @@ bool flag_forLoop = true;
 unsigned int count_disconnect = 0;
 void loop()
 {
-  Serial.println(delay_hum);
   if(WiFi.status() != WL_CONNECTED && flag_forLoop)
   {
     if(case_forWifi)
